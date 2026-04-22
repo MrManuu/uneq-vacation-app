@@ -62,16 +62,21 @@ export default function Dashboard() {
               {remaining.used_days} / {remaining.total_days} Tage
             </span>
           </div>
-          <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+          <div className="h-3 bg-gray-200 rounded-full overflow-hidden flex">
             <div
-              className="h-full rounded-full transition-all duration-700"
-              style={{
-                width: `${pct}%`,
-                backgroundColor: pct > 80 ? '#ef4444' : '#2B2931',
-              }}
+              className="h-full transition-all duration-700"
+              style={{ width: `${(remaining.used_days / remaining.total_days) * 100}%`, backgroundColor: '#00A79D' }}
+            />
+            <div
+              className="h-full transition-all duration-700"
+              style={{ width: `${(remaining.pending_days / remaining.total_days) * 100}%`, backgroundColor: '#FBB040' }}
             />
           </div>
-          <p className="text-xs text-brand-gray mt-2">{pct}% verbraucht</p>
+          <div className="flex gap-4 mt-2 text-xs text-brand-gray">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: '#00A79D' }} /> Genommen: {remaining.used_days}</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: '#FBB040' }} /> Beantragt: {remaining.pending_days}</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-200 inline-block" /> Frei: {remaining.remaining_days}</span>
+          </div>
         </div>
       )}
 
