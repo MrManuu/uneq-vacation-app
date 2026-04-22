@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNEQ Urlaubsverwaltung — Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --dark: #2B2931;
+    --peach: #FAB784;
+    --gold: #FBB040;
+    --teal: #00A79D;
+    --gray: #58595B;
+    --taupe: #9B8579;
+    --bg: #F5F5F5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Mulish', sans-serif; background: #1a1a2e; color: var(--dark); }
+
+  /* ── Tab navigation ── */
+  .tabs { display: flex; gap: 8px; padding: 20px 24px 0; background: #1a1a2e; flex-wrap: wrap; }
+  .tab { padding: 8px 18px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 13px; font-weight: 600;
+    background: #2a2a40; color: rgba(255,255,255,0.5); border: none; font-family: 'Mulish', sans-serif;
+    transition: all .2s; }
+  .tab.active { background: var(--bg); color: var(--dark); }
+  .tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+  /* ── Screen wrapper ── */
+  .screen { display: none; background: var(--bg); min-height: 600px; border-radius: 0 8px 8px 8px; overflow: hidden; }
+  .screen.active { display: block; }
+
+  /* ── Login ── */
+  .login-page { background: var(--dark); min-height: 600px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 40px 20px; position: relative; }
+  .login-top-bar { position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gold); }
+  .login-logo { margin-bottom: 40px; text-align: center; }
+  .login-logo .uneq { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 48px;
+    color: white; letter-spacing: -1px; line-height: 1; }
+  .login-logo .consulting { font-family: 'Montserrat', sans-serif; font-size: 11px; letter-spacing: 4px;
+    color: var(--peach); text-transform: uppercase; margin-top: 4px; }
+  .login-logo .divider { width: 1px; height: 40px; background: var(--gold); margin: 0 16px; display: inline-block; vertical-align: middle; }
+  .login-logo .sub { font-size: 11px; letter-spacing: 3px; color: rgba(255,255,255,0.5); text-transform: uppercase; vertical-align: middle; }
+  .login-card { background: white; border-radius: 16px; padding: 32px; width: 100%; max-width: 380px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.4); }
+  .login-card h1 { font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .login-card p { color: var(--gray); font-size: 13px; margin-bottom: 28px; }
+  .form-label { font-size: 10px; font-weight: 700; color: var(--gray); text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 6px; display: block; }
+  .form-input { width: 100%; border: 1.5px solid #e5e7eb; border-radius: 8px; padding: 10px 14px;
+    font-size: 14px; font-family: 'Mulish', sans-serif; margin-bottom: 16px; outline: none; }
+  .btn-login { width: 100%; background: var(--dark); color: white; border: none; border-radius: 8px;
+    padding: 12px; font-size: 14px; font-weight: 700; font-family: 'Mulish', sans-serif; cursor: pointer;
+    margin-top: 8px; letter-spacing: 0.5px; }
+
+  /* ── App shell ── */
+  .app-header { background: white; border-bottom: 1px solid #f0f0f0; padding: 0 24px; height: 60px;
+    display: flex; align-items: center; justify-content: space-between; }
+  .header-logo { display: flex; align-items: center; gap: 12px; }
+  .header-logo .name { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 20px; color: var(--dark); }
+  .header-logo .bar { width: 1px; height: 22px; background: var(--gold); }
+  .header-logo .tagline { font-size: 9px; letter-spacing: 3px; color: var(--peach); text-transform: uppercase; }
+  .header-logo .section { font-size: 10px; letter-spacing: 2px; color: rgba(43,41,49,.5); text-transform: uppercase; }
+  .header-nav { display: flex; gap: 24px; }
+  .nav-item { font-size: 13px; font-weight: 600; color: var(--gray); text-decoration: none;
+    border-bottom: 2px solid transparent; padding-bottom: 2px; cursor: pointer; }
+  .nav-item.active { color: var(--dark); border-color: var(--gold); }
+  .header-user { display: flex; align-items: center; gap: 10px; }
+  .header-user span { font-size: 13px; color: var(--gray); }
+  .btn-logout { border: 1.5px solid var(--dark); background: white; color: var(--dark); border-radius: 6px;
+    padding: 5px 12px; font-size: 12px; font-weight: 700; font-family: 'Mulish', sans-serif; cursor: pointer; }
+
+  /* ── Main content ── */
+  .main { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+  .page-title { font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+  .page-sub { color: var(--gray); font-size: 13px; margin-bottom: 28px; }
+
+  /* ── Cards ── */
+  .card { background: white; border-radius: 12px; border: 1px solid #f0f0f0; padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+  .stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: white; border-radius: 12px; border: 1px solid #f0f0f0; padding: 18px;
+    display: flex; align-items: flex-start; gap: 14px; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+  .stat-bar { width: 4px; border-radius: 4px; align-self: stretch; flex-shrink: 0; }
+  .stat-val { font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 700; line-height: 1; }
+  .stat-lbl { font-size: 11px; color: var(--gray); margin-top: 4px; }
+
+  /* ── Progress bar ── */
+  .prog-wrap { background: #f3f4f6; border-radius: 99px; height: 10px; overflow: hidden; margin: 8px 0 4px; }
+  .prog-bar { height: 100%; border-radius: 99px; background: var(--dark); transition: width .6s; }
+
+  /* ── Badges ── */
+  .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .badge-pending { background: #fef3c7; color: #92400e; }
+  .badge-approved { background: #ccfbf1; color: #065f46; }
+  .badge-rejected { background: #fee2e2; color: #991b1b; }
+
+  /* ── Table ── */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 10px 16px; font-size: 10px; font-weight: 700; color: var(--gray);
+    text-transform: uppercase; letter-spacing: 0.8px; background: #fafafa; border-bottom: 1px solid #f0f0f0; }
+  td { padding: 14px 16px; border-bottom: 1px solid #f8f8f8; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+
+  /* ── Approval cards ── */
+  .approval-card { background: white; border-radius: 12px; border: 1px solid #f0f0f0; padding: 20px;
+    display: flex; align-items: center; gap: 16px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+  .approval-bar { width: 4px; height: 64px; border-radius: 4px; background: var(--gold); flex-shrink: 0; }
+  .btn-approve { background: var(--teal); color: white; border: none; border-radius: 8px;
+    padding: 8px 16px; font-size: 12px; font-weight: 700; font-family: 'Mulish', sans-serif; cursor: pointer; }
+  .btn-reject { background: #dc2626; color: white; border: none; border-radius: 8px;
+    padding: 8px 16px; font-size: 12px; font-weight: 700; font-family: 'Mulish', sans-serif; cursor: pointer; }
+
+  /* ── Calendar ── */
+  .cal-day { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 6px; font-size: 11px; font-weight: 500; }
+  .cal-off { background: var(--teal); color: white; }
+  .cal-overlap { background: #ef4444; color: white; }
+
+  /* ── Footer ── */
+  .app-footer { background: var(--dark); color: rgba(255,255,255,0.3); text-align: center;
+    padding: 14px; font-size: 11px; }
+
+  /* ── Admin ── */
+  .role-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .role-admin { background: #ede9fe; color: #5b21b6; }
+  .role-manager { background: #dbeafe; color: #1d4ed8; }
+  .role-employee { background: #f3f4f6; color: #374151; }
+
+  .btn-primary { background: var(--dark); color: white; border: none; border-radius: 8px;
+    padding: 9px 18px; font-size: 13px; font-weight: 700; font-family: 'Mulish', sans-serif; cursor: pointer; }
+  .btn-secondary { background: white; color: var(--dark); border: 1.5px solid var(--dark); border-radius: 8px;
+    padding: 9px 18px; font-size: 13px; font-weight: 700; font-family: 'Mulish', sans-serif; cursor: pointer; }
+
+  .preview-note { background: rgba(251,180,36,.15); border: 1px solid var(--gold); border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 20px; font-size: 12px; color: var(--dark); }
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('login')">🔐 Login</button>
+  <button class="tab" onclick="show('dashboard')">📊 Dashboard (MA)</button>
+  <button class="tab" onclick="show('request')">📝 Urlaub beantragen</button>
+  <button class="tab" onclick="show('my-requests')">📋 Meine Anträge</button>
+  <button class="tab" onclick="show('approvals')">✅ Genehmigungen (VG)</button>
+  <button class="tab" onclick="show('team')">📅 Team-Kalender (VG)</button>
+  <button class="tab" onclick="show('admin')">⚙️ Nutzerverwaltung</button>
+</div>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-page">
+    <div class="login-top-bar"></div>
+    <div class="login-logo">
+      <div class="uneq">UNEQ</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px;">
+        <div class="consulting">Consulting</div>
+        <div class="divider"></div>
+        <span class="sub">Urlaub</span>
+      </div>
+    </div>
+    <div class="login-card">
+      <h1>Anmelden</h1>
+      <p>Urlaubsverwaltung · UNEQ Consulting</p>
+      <label class="form-label">E-Mail</label>
+      <input class="form-input" type="email" value="anna.mueller@uneq.de" />
+      <label class="form-label">Passwort</label>
+      <input class="form-input" type="password" value="••••••••" />
+      <button class="btn-login">Anmelden</button>
+    </div>
+    <p style="color:rgba(255,255,255,.2);font-size:11px;margin-top:20px;">© 2025 UNEQ Consulting</p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="screen-dashboard" class="screen">
+  <div class="app-header">
+    <div class="header-logo">
+      <div>
+        <div class="name">UNEQ</div>
+        <div class="tagline">Consulting</div>
+      </div>
+      <div class="bar"></div>
+      <div class="section">Urlaub</div>
+    </div>
+    <div class="header-nav">
+      <span class="nav-item active">Übersicht</span>
+      <span class="nav-item">Meine Anträge</span>
+    </div>
+    <div class="header-user">
+      <span>Anna Müller</span>
+      <button class="btn-logout">Abmelden</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="preview-note">👁 Vorschau: Dashboard einer Mitarbeiterin</div>
+    <div class="page-title">Willkommen, Anna</div>
+    <div class="page-sub">Urlaubsübersicht 2025</div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-bar" style="background:var(--dark)"></div>
+        <div>
+          <div class="stat-val" style="color:var(--dark)">18</div>
+          <div class="stat-lbl">Verbleibende Tage</div>
+          <div class="stat-lbl">von 30 Tagen</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-bar" style="background:var(--teal)"></div>
+        <div>
+          <div class="stat-val" style="color:var(--teal)">10</div>
+          <div class="stat-lbl">Genommene Tage</div>
+          <div class="stat-lbl">von 30 Tagen</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-bar" style="background:var(--gold)"></div>
+        <div>
+          <div class="stat-val" style="color:var(--gold)">2</div>
+          <div class="stat-lbl">Ausstehend</div>
+          <div class="stat-lbl">von 30 Tagen</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+        <span style="font-weight:700;">Urlaubsverbrauch 2025</span>
+        <span style="color:var(--gray)">10 / 30 Tage</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-bar" style="width:33%"></div></div>
+      <div style="font-size:11px;color:var(--gray);">33% verbraucht</div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:24px;">
+      <button class="btn-primary">+ Urlaub beantragen</button>
+      <button class="btn-secondary">Alle Anträge</button>
+    </div>
+
+    <div class="card">
+      <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;margin-bottom:16px;">Letzte Anträge</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f5f5f5;">
+        <div><div style="font-size:13px;font-weight:600;">2. Jun – 13. Jun 2025</div><div style="font-size:11px;color:var(--gray);margin-top:2px;">10 Arbeitstage</div></div>
+        <span class="badge badge-approved">Genehmigt</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f5f5f5;">
+        <div><div style="font-size:13px;font-weight:600;">21. Jul – 22. Jul 2025</div><div style="font-size:11px;color:var(--gray);margin-top:2px;">2 Arbeitstage</div></div>
+        <span class="badge badge-pending">Ausstehend</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;">
+        <div><div style="font-size:13px;font-weight:600;">15. Jan – 15. Jan 2025</div><div style="font-size:11px;color:var(--gray);margin-top:2px;">1 Arbeitstag</div></div>
+        <span class="badge badge-rejected">Abgelehnt</span>
+      </div>
+    </div>
+  </div>
+  <div class="app-footer">© 2025 UNEQ Consulting · Urlaubsverwaltung</div>
+</div>
+
+<!-- REQUEST -->
+<div id="screen-request" class="screen">
+  <div class="app-header">
+    <div class="header-logo">
+      <div><div class="name">UNEQ</div><div class="tagline">Consulting</div></div>
+      <div class="bar"></div><div class="section">Urlaub</div>
+    </div>
+    <div class="header-nav">
+      <span class="nav-item">Übersicht</span>
+      <span class="nav-item active">Meine Anträge</span>
+    </div>
+    <div class="header-user"><span>Anna Müller</span><button class="btn-logout">Abmelden</button></div>
+  </div>
+  <div class="main">
+    <div class="preview-note">👁 Vorschau: Urlaubsantrag stellen</div>
+    <div class="page-title">Urlaub beantragen</div>
+    <div class="page-sub">Fülle das Formular aus und reiche deinen Antrag ein.</div>
+
+    <div class="card" style="background:var(--dark);color:white;display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+      <div style="width:4px;background:var(--gold);align-self:stretch;border-radius:4px;flex-shrink:0;"></div>
+      <div>
+        <div style="font-size:13px;font-weight:700;">18 Tage verfügbar</div>
+        <div style="font-size:11px;opacity:.6;margin-top:2px;">10 von 30 Tagen genommen · 2 ausstehend</div>
+      </div>
+    </div>
+
+    <div class="card" style="max-width:500px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div>
+          <label class="form-label">Von</label>
+          <input class="form-input" type="date" value="2025-08-04" />
+        </div>
+        <div>
+          <label class="form-label">Bis</label>
+          <input class="form-input" type="date" value="2025-08-15" />
+        </div>
+      </div>
+      <div style="background:#f0fdf4;border-radius:8px;padding:10px 14px;font-size:13px;color:#065f46;font-weight:600;margin-bottom:16px;">
+        10 Arbeitstage ausgewählt
+      </div>
+      <div style="margin-bottom:20px;">
+        <label class="form-label">Grund <span style="text-transform:none;font-weight:400;">(optional)</span></label>
+        <textarea class="form-input" style="height:80px;resize:none;font-family:'Mulish',sans-serif;">Familienurlaub</textarea>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-primary">Antrag einreichen</button>
+        <button class="btn-secondary">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+  <div class="app-footer">© 2025 UNEQ Consulting · Urlaubsverwaltung</div>
+</div>
+
+<!-- MY REQUESTS -->
+<div id="screen-my-requests" class="screen">
+  <div class="app-header">
+    <div class="header-logo">
+      <div><div class="name">UNEQ</div><div class="tagline">Consulting</div></div>
+      <div class="bar"></div><div class="section">Urlaub</div>
+    </div>
+    <div class="header-nav">
+      <span class="nav-item">Übersicht</span>
+      <span class="nav-item active">Meine Anträge</span>
+    </div>
+    <div class="header-user"><span>Anna Müller</span><button class="btn-logout">Abmelden</button></div>
+  </div>
+  <div class="main">
+    <div class="preview-note">👁 Vorschau: Meine Urlaubsanträge</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;">
+      <div>
+        <div class="page-title">Meine Anträge</div>
+        <div class="page-sub" style="margin-bottom:0">Alle deine Urlaubsanträge im Überblick</div>
+      </div>
+      <button class="btn-primary">+ Neu beantragen</button>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table>
+        <thead><tr>
+          <th>Zeitraum</th><th>Tage</th><th>Grund</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600;">2. Jun – 13. Jun 2025</td><td style="color:var(--gray)">10</td><td style="color:var(--gray)">Familienurlaub</td><td><span class="badge badge-approved">Genehmigt</span></td><td></td></tr>
+          <tr><td style="font-weight:600;">21. Jul – 22. Jul 2025</td><td style="color:var(--gray)">2</td><td style="color:var(--gray)">—</td><td><span class="badge badge-pending">Ausstehend</span></td><td><a style="color:#dc2626;font-size:12px;font-weight:600;cursor:pointer;">Stornieren</a></td></tr>
+          <tr><td style="font-weight:600;">15. Jan – 15. Jan 2025</td><td style="color:var(--gray)">1</td><td style="color:var(--gray)">Arzttermin</td><td><span class="badge badge-rejected">Abgelehnt</span></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="app-footer">© 2025 UNEQ Consulting · Urlaubsverwaltung</div>
+</div>
+
+<!-- APPROVALS -->
+<div id="screen-approvals" class="screen">
+  <div class="app-header">
+    <div class="header-logo">
+      <div><div class="name">UNEQ</div><div class="tagline">Consulting</div></div>
+      <div class="bar"></div><div class="section">Urlaub</div>
+    </div>
+    <div class="header-nav">
+      <span class="nav-item">Übersicht</span>
+      <span class="nav-item">Meine Anträge</span>
+      <span class="nav-item">Team</span>
+      <span class="nav-item active">Genehmigungen</span>
+      <span class="nav-item">Verwaltung</span>
+    </div>
+    <div class="header-user"><span>Max Vorgesetzter</span><button class="btn-logout">Abmelden</button></div>
+  </div>
+  <div class="main">
+    <div class="preview-note">👁 Vorschau: Genehmigungsübersicht (Vorgesetzter)</div>
+    <div class="page-title">Genehmigungen</div>
+    <div class="page-sub">Ausstehende Urlaubsanträge deiner Mitarbeitenden</div>
+
+    <div class="approval-card">
+      <div class="approval-bar"></div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-weight:700;font-size:14px;">Anna Müller</span>
+          <span class="badge badge-pending">Ausstehend</span>
+        </div>
+        <div style="font-size:12px;color:var(--gray);">21. Jul – 22. Jul 2025 · <strong>2 Arbeitstage</strong></div>
+        <div style="font-size:11px;color:var(--gray);opacity:.7;margin-top:4px;">Eingereicht: 18. Jun 2025</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-approve">Genehmigen</button>
+        <button class="btn-reject">Ablehnen</button>
+      </div>
+    </div>
+
+    <div class="approval-card">
+      <div class="approval-bar"></div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-weight:700;font-size:14px;">Tom Schmidt</span>
+          <span class="badge badge-pending">Ausstehend</span>
+        </div>
+        <div style="font-size:12px;color:var(--gray);">4. Aug – 15. Aug 2025 · <strong>10 Arbeitstage</strong></div>
+        <div style="font-size:11px;color:var(--gray);opacity:.5;margin-top:2px;">„Sommerurlaub mit Familie"</div>
+        <div style="font-size:11px;color:var(--gray);opacity:.7;margin-top:4px;">Eingereicht: 20. Jun 2025</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-approve">Genehmigen</button>
+        <button class="btn-reject">Ablehnen</button>
+      </div>
+    </div>
+  </div>
+  <div class="app-footer">© 2025 UNEQ Consulting · Urlaubsverwaltung</div>
+</div>
+
+<!-- TEAM CALENDAR -->
+<div id="screen-team" class="screen">
+  <div class="app-header">
+    <div class="header-logo">
+      <div><div class="name">UNEQ</div><div class="tagline">Consulting</div></div>
+      <div class="bar"></div><div class="section">Urlaub</div>
+    </div>
+    <div class="header-nav">
+      <span class="nav-item">Übersicht</span>
+      <span class="nav-item">Meine Anträge</span>
+      <span class="nav-item active">Team</span>
+      <span class="nav-item">Genehmigungen</span>
+      <span class="nav-item">Verwaltung</span>
+    </div>
+    <div class="header-user"><span>Max Vorgesetzter</span><button class="btn-logout">Abmelden</button></div>
+  </div>
+  <div class="main">
+    <div class="preview-note">👁 Vorschau: Teamkalender mit Überschneidungserkennung</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div class="page-title">Teamübersicht</div>
+        <div class="page-sub" style="margin-bottom:0">Urlaubskalender und Resttage deines Teams</div>
+      </div>
+      <button class="btn-secondary">CSV exportieren</button>
+    </div>
+
+    <!-- Month tabs -->
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;">
+      <button style="padding:6px 12px;border-radius:8px;border:1px solid #e5e7eb;background:white;font-size:12px;color:var(--gray);cursor:pointer;">Jan</button>
+      <button style="padding:6px 12px;border-radius:8px;border:1px solid #e5e7eb;background:white;font-size:12px;color:var(--gray);cursor:pointer;">Feb</button>
+      <button style="padding:6px 12px;border-radius:8px;border:1px solid #e5e7eb;background:white;font-size:12px;color:var(--gray);cursor:pointer;">Mär</button>
+      <button style="padding:6px 12px;border-radius:8px;border:1px solid #e5e7eb;background:white;font-size:12px;color:var(--gray);cursor:pointer;">Apr</button>
+      <button style="padding:6px 12px;border-radius:8px;border:1px solid #e5e7eb;background:white;font-size:12px;color:var(--gray);cursor:pointer;">Mai</button>
+      <button style="padding:6px 12px;border-radius:8px;border:none;background:var(--dark);color:white;font-size:12px;font-weight:700;cursor:pointer;">Jun</button>
+      <button style="padding:6px 12px;border-radius:8px;border:1px solid #e5e7eb;background:white;font-size:12px;color:var(--gray);cursor:pointer;">Jul</button>
+      <button style="padding:6px 12px;border-radius:8px;border:1px solid #e5e7eb;background:white;font-size:12px;color:var(--gray);cursor:pointer;">Aug</button>
+      <button style="padding:6px 12px;border-radius:8px;border:1px solid #e5e7eb;background:white;font-size:12px;color:var(--gray);cursor:pointer;">Sep</button>
+      <button style="padding:6px 12px;border-radius:8px;border:1px solid #e5e7eb;background:white;font-size:12px;color:var(--gray);cursor:pointer;">Okt</button>
+      <button style="padding:6px 12px;border-radius:8px;border:1px solid #e5e7eb;background:white;font-size:12px;color:var(--gray);cursor:pointer;">Nov</button>
+      <button style="padding:6px 12px;border-radius:8px;border:1px solid #e5e7eb;background:white;font-size:12px;color:var(--gray);cursor:pointer;">Dez</button>
+    </div>
+
+    <div class="card" style="padding:0;overflow:auto;margin-bottom:20px;">
+      <div style="padding:14px 20px;border-bottom:1px solid #f0f0f0;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;">Juni 2025</div>
+      <table style="min-width:700px;">
+        <thead>
+          <tr style="background:#fafafa;">
+            <th style="min-width:110px;">Mitarbeiter</th>
+            <th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>16</th><th>17</th><th>18</th><th>19</th><th>20</th><th>23</th><th>24</th><th>25</th><th>26</th><th>27</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;font-size:13px;">Anna</td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;font-size:13px;">Tom</td>
+            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:#ef4444;margin:0 auto;" title="Überschneidung!"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:#ef4444;margin:0 auto;" title="Überschneidung!"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td><span style="display:block;width:20px;height:20px;border-radius:4px;background:var(--teal);margin:0 auto;"></span></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr style="background:#fafafa;">
+            <td style="font-size:11px;font-weight:700;color:var(--gray);">Überschneidung</td>
+            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            <td style="text-align:center;font-size:13px;font-weight:700;color:#ef4444;">2</td>
+            <td style="text-align:center;font-size:13px;font-weight:700;color:#ef4444;">2</td>
+            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding:12px 20px;border-top:1px solid #f0f0f0;display:flex;gap:16px;font-size:11px;color:var(--gray);">
+        <span style="display:flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:var(--teal);display:inline-block;"></span> Urlaub</span>
+        <span style="display:flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#ef4444;display:inline-block;"></span> Überschneidung</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;margin-bottom:16px;">Resttage je Mitarbeiter</div>
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+          <span style="font-weight:600;">Anna Müller</span>
+          <span style="color:var(--gray);font-size:12px;">18 verbleibend · 10 genommen · 2 ausstehend</span>
+        </div>
+        <div class="prog-wrap"><div class="prog-bar" style="width:33%"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+          <span style="font-weight:600;">Tom Schmidt</span>
+          <span style="color:var(--gray);font-size:12px;">5 verbleibend · 25 genommen</span>
+        </div>
+        <div class="prog-wrap"><div class="prog-bar" style="width:83%;background:#ef4444;"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="app-footer">© 2025 UNEQ Consulting · Urlaubsverwaltung</div>
+</div>
+
+<!-- ADMIN -->
+<div id="screen-admin" class="screen">
+  <div class="app-header">
+    <div class="header-logo">
+      <div><div class="name">UNEQ</div><div class="tagline">Consulting</div></div>
+      <div class="bar"></div><div class="section">Urlaub</div>
+    </div>
+    <div class="header-nav">
+      <span class="nav-item">Übersicht</span>
+      <span class="nav-item">Meine Anträge</span>
+      <span class="nav-item">Team</span>
+      <span class="nav-item">Genehmigungen</span>
+      <span class="nav-item active">Verwaltung</span>
+    </div>
+    <div class="header-user"><span>Admin</span><button class="btn-logout">Abmelden</button></div>
+  </div>
+  <div class="main">
+    <div class="preview-note">👁 Vorschau: Nutzerverwaltung (Admin)</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;">
+      <div>
+        <div class="page-title">Nutzerverwaltung</div>
+        <div class="page-sub" style="margin-bottom:0">Alle Nutzer und ihre Zuordnungen</div>
+      </div>
+      <button class="btn-primary">+ Nutzer anlegen</button>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table>
+        <thead><tr><th>Name</th><th>E-Mail</th><th>Rolle</th><th></th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;">Admin</td>
+            <td style="color:var(--gray);">admin@uneq.de</td>
+            <td><span class="role-badge role-admin">Admin</span></td>
+            <td style="text-align:right;"><a style="color:#dc2626;font-size:12px;font-weight:600;cursor:pointer;">Löschen</a></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Max Müller</td>
+            <td style="color:var(--gray);">max.mueller@uneq.de</td>
+            <td><span class="role-badge role-manager">Vorgesetzter</span></td>
+            <td style="text-align:right;"><a style="color:#dc2626;font-size:12px;font-weight:600;cursor:pointer;">Löschen</a></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Anna Müller</td>
+            <td style="color:var(--gray);">anna.mueller@uneq.de</td>
+            <td><span class="role-badge role-employee">Mitarbeiter</span></td>
+            <td style="text-align:right;display:flex;justify-content:flex-end;gap:16px;">
+              <a style="color:var(--teal);font-size:12px;font-weight:600;cursor:pointer;">Vorgesetzte zuweisen</a>
+              <a style="color:#dc2626;font-size:12px;font-weight:600;cursor:pointer;">Löschen</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Tom Schmidt</td>
+            <td style="color:var(--gray);">tom.schmidt@uneq.de</td>
+            <td><span class="role-badge role-employee">Mitarbeiter</span></td>
+            <td style="text-align:right;display:flex;justify-content:flex-end;gap:16px;">
+              <a style="color:var(--teal);font-size:12px;font-weight:600;cursor:pointer;">Vorgesetzte zuweisen</a>
+              <a style="color:#dc2626;font-size:12px;font-weight:600;cursor:pointer;">Löschen</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="app-footer">© 2025 UNEQ Consulting · Urlaubsverwaltung</div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+  document.getElementById('screen-' + id).classList.add('active')
+  event.target.classList.add('active')
+}
+</script>
+</body>
+</html>
