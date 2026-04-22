@@ -215,22 +215,26 @@ export default function TeamOverview() {
                   const totalOnDay = (entry?.approved.length ?? 0) + (entry?.pending.length ?? 0)
                   const overlap = totalOnDay > 1
 
-                  let bgColor: string | undefined
+                  let background: string | undefined
                   let tooltip: string | undefined
                   if (isApproved) {
-                    bgColor = '#00A79D'
+                    background = overlap
+                      ? 'linear-gradient(135deg, #00A79D 50%, #ef4444 50%)'
+                      : '#00A79D'
                     tooltip = overlap ? 'Genehmigt (Überschneidung!)' : 'Urlaub (genehmigt)'
                   } else if (isPending) {
-                    bgColor = '#FBB040'
+                    background = overlap
+                      ? 'linear-gradient(135deg, #FBB040 50%, #ef4444 50%)'
+                      : '#FBB040'
                     tooltip = overlap ? 'Beantragt (Überschneidung!)' : 'Urlaub (beantragt)'
                   }
 
                   return (
                     <td key={key} className="px-0.5 py-2 text-center">
-                      {bgColor && (
+                      {background && (
                         <span
-                          className={`block w-4 h-4 rounded mx-auto ${overlap ? 'ring-2 ring-red-500' : ''}`}
-                          style={{ backgroundColor: bgColor }}
+                          className="block w-4 h-4 rounded mx-auto"
+                          style={{ background }}
                           title={tooltip}
                         />
                       )}
@@ -267,7 +271,7 @@ export default function TeamOverview() {
             <span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#FBB040' }} /> Beantragt
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-brand-teal inline-block ring-2 ring-red-500" /> Überschneidung
+            <span className="w-3 h-3 rounded inline-block" style={{ background: 'linear-gradient(135deg, #00A79D 50%, #ef4444 50%)' }} /> Überschneidung
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-gray-200 inline-block" /> Wochenende / Feiertag
