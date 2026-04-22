@@ -151,6 +151,8 @@ Der Mensch gibt Anforderungen und Kontext vor, Claude Code setzt technisch um un
 - Login-Fehlermeldung auf Deutsch: "E-Mail oder Passwort ist falsch"
 - Fortschrittsbalken auf der Übersicht dreigeteilt: Genommen (grün), Beantragt (gelb), Frei (grau)
 - Bugfix: Beantragte Tage werden jetzt korrekt vom verfügbaren Kontingent abgezogen
+- Nutzerverwaltung: Sortierung nach Rolle (Admin → Vorgesetzte → Mitarbeiter), innerhalb der Gruppe alphabetisch
+- Bugfix: Login-Fehlermeldung wurde durch Interceptor unterdrückt — wird jetzt korrekt angezeigt
 
 #### Session 1 — 21.04.2026
 - Aufgabenbeschreibung und Brand Guideline (CI) analysiert
