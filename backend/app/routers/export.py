@@ -12,6 +12,26 @@ from app.models import User, VacationRequest, VacationStatus
 
 router = APIRouter(prefix="/api/export", tags=["export"])
 
+_STATUS_DE = {
+    "pending": "Beantragt",
+    "approved": "Genehmigt",
+    "rejected": "Abgelehnt",
+}
+
+_LEAVE_TYPE_DE = {
+    "bezahlter_urlaub": "Bezahlter Urlaub",
+    "elternzeit": "Elternzeit",
+    "sonderurlaub_bezahlt": "Sonderurlaub (bezahlt)",
+    "sonderurlaub_unbezahlt": "Sonderurlaub (unbezahlt)",
+    "ueberstundenabbau": "Überstundenabbau",
+}
+
+
+def _fmt_dt(dt) -> str:
+    if not dt:
+        return ""
+    return dt.strftime("%d.%m.%Y %H:%M")
+
 
 @router.get("/vacations.csv")
 def export_vacations_csv(
@@ -33,25 +53,28 @@ def export_vacations_csv(
     requests = q.order_by(VacationRequest.start_date).all()
 
     output = io.StringIO()
+    output.write("﻿")  # UTF-8 BOM — Excel reads umlauts correctly
     writer = csv.writer(output, delimiter=";")
     writer.writerow([
         "ID", "Mitarbeiter", "E-Mail", "Von", "Bis", "Arbeitstage",
-        "Status", "Grund", "Geprüft von", "Geprüft am", "Erstellt am",
+        "Art", "Status", "Grund", "Geprüft von", "Geprüft am", "Erstellt am",
     ])
     for r in requests:
         reviewer_name = r.reviewer.full_name if r.reviewer else ""
+        leave_type = _LEAVE_TYPE_DE.get(r.leave_type or "bezahlter_urlaub", r.leave_type or "")
         writer.writerow([
             r.id,
             r.employee.full_name,
             r.employee.email,
-            r.start_date.isoformat(),
-            r.end_date.isoformat(),
+            r.start_date.strftime("%d.%m.%Y"),
+            r.end_date.strftime("%d.%m.%Y"),
             r.working_days,
-            r.status.value,
+            leave_type,
+            _STATUS_DE.get(r.status.value, r.status.value),
             r.reason or "",
             reviewer_name,
-            r.reviewed_at.isoformat() if r.reviewed_at else "",
-            r.created_at.isoformat(),
+            _fmt_dt(r.reviewed_at),
+            _fmt_dt(r.created_at),
         ])
 
     output.seek(0)
