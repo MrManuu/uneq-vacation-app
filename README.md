@@ -105,18 +105,18 @@ Schnellstart lokal:
 cp .env.example .env
 docker compose up -d
 ```
-App läuft auf `http://localhost`. Login: `admin@uneq.de` / `test!2211!`
+App läuft auf `http://localhost`. Login: `admin@uneq.de` / siehe `.env`
 
 ### Demo-Accounts (Live-System)
 
-| Rolle | Name | E-Mail | Passwort |
-|---|---|---|---|
-| Admin | Admin | `admin@uneq.de` | `test!2211!` |
-| Vorgesetzter | Max Schmietendorf | `pk@uneq.de` | `test!2211!` |
-| Vorgesetzter | Tobias Zulauf | `test3@uneq.de` | `test!2211!` |
-| Mitarbeiter | Manuel Birghan | `m.birghan@web.de` | `test!2211!` |
-| Mitarbeiter | Philipp Krombusch | `test@uneq.de` | `test!2211!` |
-| Mitarbeiter | Flavia Polotzek | `test2@uneq.de` | `test!2211!` |
+| Rolle | Name | E-Mail |
+|---|---|---|
+| Admin | Admin | `admin@uneq.de` |
+| Vorgesetzter | Max Schmietendorf | `pk@uneq.de` |
+| Vorgesetzter | Tobias Zulauf | `test3@uneq.de` |
+| Mitarbeiter | Manuel Birghan | `m.birghan@web.de` |
+| Mitarbeiter | Philipp Krombusch | `test@uneq.de` |
+| Mitarbeiter | Flavia Polotzek | `test2@uneq.de` |
 
 ---
 
