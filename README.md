@@ -141,6 +141,7 @@ Der Mensch gibt Anforderungen und Kontext vor, Claude Code setzt technisch um un
 - Vorgesetzte genehmigen eigenen Urlaub jetzt automatisch beim Eintragen
 - Team-Tab für alle Rollen zugänglich (Mitarbeiter sehen ihr Team)
 - Bugfix: Nutzer löschen schlug fehl wenn offene Urlaubsanträge vorhanden waren (SQLAlchemy passive_deletes)
+- Passwort-Änderungsfunktion für alle Nutzer eingebaut (Klick auf Nutzername im Header öffnet Modal)
 
 #### Session 1 — 21.04.2026
 - Aufgabenbeschreibung und Brand Guideline (CI) analysiert
