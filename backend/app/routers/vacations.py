@@ -58,7 +58,7 @@ def _calc_remaining(db: Session, employee_id: int, year: int) -> RemainingDaysOu
         total_days=VACATION_DAYS_PER_YEAR,
         used_days=used,
         pending_days=pending,
-        remaining_days=VACATION_DAYS_PER_YEAR - used,
+        remaining_days=VACATION_DAYS_PER_YEAR - used - pending,
     )
 
 
