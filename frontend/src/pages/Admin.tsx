@@ -64,7 +64,8 @@ export default function Admin() {
         </button>
       </div>
 
-      <div className="card overflow-hidden p-0">
+      {/* Desktop table */}
+      <div className="card overflow-hidden p-0 hidden sm:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
@@ -94,10 +95,7 @@ export default function Admin() {
                         Vorgesetzte zuweisen
                       </button>
                     )}
-                    <button
-                      onClick={() => deleteUser(u.id)}
-                      className="text-xs text-red-500 hover:underline font-medium"
-                    >
+                    <button onClick={() => deleteUser(u.id)} className="text-xs text-red-500 hover:underline font-medium">
                       Löschen
                     </button>
                   </div>
@@ -106,6 +104,34 @@ export default function Admin() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="space-y-3 sm:hidden">
+        {users.map((u) => (
+          <div key={u.id} className="card space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="font-medium">{u.full_name}</p>
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${roleBg(u.role)}`}>
+                {roleLabel(u.role)}
+              </span>
+            </div>
+            <p className="text-sm text-brand-gray">{u.email}</p>
+            <div className="flex gap-3 pt-1">
+              {u.role === 'employee' && (
+                <button
+                  onClick={() => { setEditAssign(u); setSelectedManagerIds([]) }}
+                  className="text-xs text-brand-teal font-medium"
+                >
+                  Vorgesetzte zuweisen
+                </button>
+              )}
+              <button onClick={() => deleteUser(u.id)} className="text-xs text-red-500 font-medium">
+                Löschen
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Create user modal */}
