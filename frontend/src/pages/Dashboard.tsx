@@ -17,8 +17,6 @@ export default function Dashboard() {
     api.get<VacationRequest[]>('/vacations/my').then((r) => setRecent(r.data.slice(0, 5)))
   }, [])
 
-  const pct = remaining ? Math.round((remaining.used_days / remaining.total_days) * 100) : 0
-
   return (
     <div className="space-y-8">
       {/* Welcome */}

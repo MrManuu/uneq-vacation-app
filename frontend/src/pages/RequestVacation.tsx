@@ -21,7 +21,7 @@ export default function RequestVacation() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [reason, setReason] = useState('')
-  const [leaveType, setLeaveType] = useState<LeaveType>('erholungsurlaub')
+  const [leaveType, setLeaveType] = useState<LeaveType>('bezahlter_urlaub')
   const [loading, setLoading] = useState(false)
   const [remaining, setRemaining] = useState<RemainingDays | null>(null)
 
