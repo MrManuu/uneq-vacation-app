@@ -146,6 +146,11 @@ Der Mensch gibt Anforderungen und Kontext vor, Claude Code setzt technisch um un
 - Bezeichnung "Ausstehend" durchgehend zu "Beantragt" umbenannt
 - Team-Kalender: alle Nutzer sehen jetzt alle Kollegen (nicht nur eigenes Team)
 - Überschneidungen im Kalender als diagonaler Farbverlauf (grün/gelb + rot) statt komplett rot dargestellt
+- Navigation: Tab "Team" in "Teamkalender" umbenannt, Legende-Reihenfolge angepasst (Beantragt vor Genehmigt)
+- Urlaubsarten eingeführt: Bezahlter Urlaub, Elternzeit, Sonderurlaub (bezahlt/unbezahlt), Überstundenabbau — nur Bezahlter Urlaub zählt gegen das 30-Tage-Kontingent
+- Login-Fehlermeldung auf Deutsch: "E-Mail oder Passwort ist falsch"
+- Fortschrittsbalken auf der Übersicht dreigeteilt: Genommen (grün), Beantragt (gelb), Frei (grau)
+- Bugfix: Beantragte Tage werden jetzt korrekt vom verfügbaren Kontingent abgezogen
 
 #### Session 1 — 21.04.2026
 - Aufgabenbeschreibung und Brand Guideline (CI) analysiert
