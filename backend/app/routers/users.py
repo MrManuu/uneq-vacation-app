@@ -31,7 +31,9 @@ def list_users(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
-    return db.query(User).all()
+    role_order = {UserRole.admin: 0, UserRole.manager: 1, UserRole.employee: 2}
+    users = db.query(User).all()
+    return sorted(users, key=lambda u: (role_order[u.role], u.full_name))
 
 
 @router.get("/employees", response_model=list[UserOut])
