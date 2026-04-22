@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UNEQ Urlaubsverwaltung — Projektdokumentation</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700&family=Montserrat:wght@700;800&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    body {
+      font-family: 'Mulish', sans-serif;
+      color: #2B2931;
+      background: #fff;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* ── Cover ── */
+    .cover {
+      background: #2B2931;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 100px;
+      page-break-after: always;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: #FBB040;
+    }
+    .cover-logo {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #FBB040;
+      margin-bottom: 60px;
+    }
+    .cover-logo span { color: #fff; }
+    .cover h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .cover h1 em { color: #00A79D; font-style: normal; }
+    .cover p { color: rgba(255,255,255,0.6); font-size: 16px; margin-bottom: 8px; }
+    .cover-meta {
+      margin-top: 80px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      gap: 60px;
+    }
+    .cover-meta div label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); display: block; margin-bottom: 4px; }
+    .cover-meta div strong { font-size: 15px; color: #fff; }
+
+    /* ── Page layout ── */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 80px;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+
+    /* ── Section headings ── */
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: #2B2931;
+      margin-bottom: 8px;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #FBB040;
+    }
+    h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #2B2931;
+      margin: 28px 0 10px;
+    }
+    p { margin-bottom: 12px; color: #444; }
+
+    /* ── Screenshot placeholder ── */
+    .screenshot {
+      border: 2px dashed #ccc;
+      border-radius: 12px;
+      background: #f9f9f9;
+      padding: 40px;
+      text-align: center;
+      color: #aaa;
+      font-size: 13px;
+      margin: 20px 0;
+    }
+    .screenshot strong { display: block; font-size: 15px; color: #bbb; margin-bottom: 6px; }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    th { background: #2B2931; color: #fff; text-align: left; padding: 10px 14px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+    td { padding: 10px 14px; border-bottom: 1px solid #eee; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #f9f9f9; }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge-teal { background: #e0f5f4; color: #00A79D; }
+    .badge-gold { background: #fff4e0; color: #d48a00; }
+    .badge-purple { background: #f0e8ff; color: #7c3aed; }
+
+    /* ── Checklist ── */
+    .checklist { list-style: none; margin: 12px 0; }
+    .checklist li { padding: 6px 0; border-bottom: 1px solid #f0f0f0; display: flex; align-items: flex-start; gap: 10px; }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist li::before { content: '✅'; flex-shrink: 0; }
+
+    /* ── Info box ── */
+    .infobox {
+      background: #2B2931;
+      color: #fff;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 20px 0;
+    }
+    .infobox h4 { font-family: 'Montserrat', sans-serif; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #FBB040; margin-bottom: 10px; }
+    .infobox p { color: rgba(255,255,255,0.75); margin: 0; }
+    .infobox table th { background: rgba(255,255,255,0.1); }
+    .infobox table td { color: rgba(255,255,255,0.8); border-color: rgba(255,255,255,0.1); }
+    .infobox table tr:nth-child(even) td { background: rgba(255,255,255,0.05); }
+
+    /* ── Session log ── */
+    .session { margin: 20px 0; }
+    .session-header {
+      background: #f5f5f5;
+      border-left: 4px solid #FBB040;
+      padding: 10px 16px;
+      border-radius: 0 8px 8px 0;
+      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      margin-bottom: 8px;
+    }
+    .session ul { padding-left: 20px; }
+    .session li { padding: 3px 0; color: #444; }
+
+    /* ── Print ── */
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    @media print {
+      body { margin: 0; }
+
+      .cover {
+        min-height: 0;
+        height: 297mm;
+        width: 210mm;
+        padding: 60mm 30mm 30mm;
+        page-break-after: always;
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 0;
+        padding: 20mm 25mm;
+        page-break-after: always;
+      }
+
+      h2 { page-break-after: avoid; }
+      h3 { page-break-after: avoid; }
+
+      table { page-break-inside: avoid; }
+      .infobox { page-break-inside: avoid; }
+      .session { page-break-inside: avoid; }
+      .checklist { page-break-inside: avoid; }
+
+      img {
+        max-width: 100%;
+        max-height: 160mm;
+        object-fit: contain;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════ COVER ══ -->
+<div class="cover">
+  <div class="cover-logo">UNEQ <span>Consulting</span></div>
+  <h1>Urlaubsverwaltung<br /><em>Web App</em></h1>
+  <p>Bewerbungsprojekt — Technische Projektdokumentation</p>
+  <p>Bewerber: Manuel Birghan</p>
+  <div class="cover-meta">
+    <div>
+      <label>Live-URL</label>
+      <strong>urlaub.birghan-dev.de</strong>
+    </div>
+    <div>
+      <label>GitHub</label>
+      <strong>MrManuu/uneq-vacation-app</strong>
+    </div>
+    <div>
+      <label>Datum</label>
+      <strong>April 2026</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ INHALTSVERZEICHNIS ══ -->
+<div class="page">
+  <h2>Inhaltsverzeichnis</h2>
+  <table>
+    <tr><td>1</td><td>Projektübersicht &amp; Vorgehensweise</td></tr>
+    <tr><td>2</td><td>Tech-Stack &amp; Begründung</td></tr>
+    <tr><td>3</td><td>Sicherheit</td></tr>
+    <tr><td>4</td><td>Features &amp; Walkthrough</td></tr>
+    <tr><td>5</td><td>Pflichtanforderungen — Erfüllungsstatus</td></tr>
+    <tr><td>6</td><td>Session-Log (Arbeitsprotokoll)</td></tr>
+    <tr><td>7</td><td>Demo-Zugänge</td></tr>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════ 1. PROJEKTÜBERSICHT ══ -->
+<div class="page">
+  <h2>1. Projektübersicht &amp; Vorgehensweise</h2>
+
+  <p>
+    Ziel war der Aufbau einer vollständigen Urlaubsverwaltungs-Webanwendung für UNEQ Consulting — von der Planung über die Implementierung bis zum Betrieb auf einem eigenen Server mit eigener Domain.
+  </p>
+  <p>
+    Das Projekt wurde in zwei Sessions innerhalb von zwei Tagen umgesetzt. Die Entwicklung erfolgte in enger Zusammenarbeit mit <strong>Claude Code (Anthropic)</strong> als KI-Coding-Assistenten: Der Bewerber gab Anforderungen und Kontext vor, Claude Code setzte technisch um und begründete Entscheidungen — ein Arbeitsstil, der den KI-gestützten Entwicklungsfluss explizit demonstriert.
+  </p>
+
+  <h3>Arbeitsweise</h3>
+  <p>
+    Alle Entscheidungen — Stack-Wahl, Architektur, Sicherheitsmaßnahmen, UI-Design — wurden bewusst und eigenständig getroffen. Claude Code fungierte als technischer Umsetzer, nicht als Entscheider. Das vollständige Arbeitsprotokoll ist im Session-Log (Abschnitt 6) dokumentiert und im GitHub-Repository öffentlich einsehbar.
+  </p>
+
+  <div class="infobox">
+    <h4>Ergebnis</h4>
+    <p>Die App ist live unter <strong>https://urlaub.birghan-dev.de</strong> erreichbar, läuft in Docker auf einem Hostinger VPS, ist per HTTPS abgesichert und vollständig auf GitHub dokumentiert.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ 2. TECH STACK ══ -->
+<div class="page">
+  <h2>2. Tech-Stack &amp; Begründung</h2>
+
+  <table>
+    <thead>
+      <tr><th>Schicht</th><th>Technologie</th><th>Begründung</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Backend</td><td><strong>FastAPI</strong> (Python 3.12)</td><td>Schnelle Entwicklung, automatische OpenAPI-Docs, starke Typsicherheit via Pydantic, async-fähig</td></tr>
+      <tr><td>Frontend</td><td><strong>React + TypeScript + Vite + TailwindCSS</strong></td><td>Industriestandard für SPAs, hervorragend für dashboardartige UIs, schnelles Build-System</td></tr>
+      <tr><td>Datenbank</td><td><strong>PostgreSQL 16</strong></td><td>ACID-konform, zuverlässig für relationale Daten mit m:n-Beziehungen (Mitarbeiter↔Vorgesetzte), bewährt in Produktion</td></tr>
+      <tr><td>Auth</td><td><strong>JWT + HTTP-only Cookie + bcrypt</strong></td><td>Kein Session-State im Backend, Passwörter sicher gehasht, XSS-Schutz durch HTTP-only</td></tr>
+      <tr><td>Reverse Proxy</td><td><strong>nginx</strong></td><td>SSL-Terminierung, Weiterleitung auf Backend/Frontend, Rate Limiting</td></tr>
+      <tr><td>SSL</td><td><strong>Let's Encrypt (Certbot)</strong></td><td>Kostenlos, automatisch erneuerbar</td></tr>
+      <tr><td>Hosting</td><td><strong>Hostinger KVM 2 VPS</strong></td><td>Günstiger Einstieg, volle Kontrolle, Docker-fähig, Ubuntu 24.04</td></tr>
+      <tr><td>CI/CD</td><td><strong>GitHub Actions</strong></td><td>Direkt integriert: lint → typecheck → build → Docker-Build bei jedem Push</td></tr>
+      <tr><td>Design</td><td><strong>UNEQ Corporate Identity</strong></td><td>Farben (#2B2931, #FAB784, #FBB040, #00A79D) und Schriften (Mulish, Montserrat) aus der Brand Guideline</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════ 3. SICHERHEIT ══ -->
+<div class="page">
+  <h2>3. Sicherheit</h2>
+  <p>Folgende Punkte wurden eigenständig und ohne explizite Vorgabe berücksichtigt:</p>
+
+  <ul class="checklist">
+    <li><strong>HTTPS-only</strong> — HTTP leitet automatisch auf HTTPS um (nginx)</li>
+    <li><strong>HTTP-only Cookies</strong> für JWT — kein Zugriff via JavaScript (XSS-Schutz)</li>
+    <li><strong>bcrypt</strong> für Passwort-Hashing — kein MD5/SHA1</li>
+    <li><strong>CORS</strong> eingeschränkt auf die eigene Domain</li>
+    <li><strong>Rate Limiting</strong> auf Login-Endpoint — 5 Anfragen/Minute via nginx + slowapi</li>
+    <li><strong>SQL Injection</strong> verhindert durch SQLAlchemy ORM (keine raw queries)</li>
+    <li><strong>Input-Validierung</strong> via Pydantic (Backend) und TypeScript (Frontend)</li>
+    <li><strong>Security-Header</strong> in nginx (X-Frame-Options, HSTS, X-Content-Type-Options, Referrer-Policy)</li>
+    <li><strong>Passwort-Mindestlänge</strong> (8 Zeichen) serverseitig erzwungen</li>
+    <li><strong>Passwort ändern</strong> — jeder Nutzer kann sein Passwort selbst ändern (aktuelles Passwort erforderlich)</li>
+  </ul>
+</div>
+
+<!-- ══════════════════════════════════════════════ 4. WALKTHROUGH ══ -->
+<div class="page">
+  <h2>4. Features &amp; Walkthrough</h2>
+
+  <h3>Login</h3>
+  <p>Alle Nutzer melden sich per E-Mail und Passwort an. Bei falschen Zugangsdaten erscheint eine klare Fehlermeldung. Das Session-Token wird als HTTP-only Cookie gesetzt.</p>
+  <img src="screenshots/Login.png" style="width:100%;border-radius:12px;border:1px solid #eee;margin:20px 0;" />
+</div>
+
+<div class="page">
+  <h3>Übersicht (Dashboard)</h3>
+  <p>Nach dem Login sieht jeder Nutzer seinen persönlichen Urlaubsstand: verbleibende Tage, genommene Tage, beantragte Tage. Der Fortschrittsbalken zeigt Genommen (grün), Beantragt (gelb) und Frei (grau) auf einen Blick.</p>
+  <img src="screenshots/Dashboard.png" style="width:100%;border-radius:12px;border:1px solid #eee;margin:20px 0;" />
+</div>
+
+<div class="page">
+  <h3>Urlaub beantragen</h3>
+  <p>Mitarbeitende wählen Zeitraum, Urlaubsart und optionalen Grund. Die Arbeitstage werden automatisch berechnet (Mo–Fr, NRW-Feiertage ausgeschlossen). Nur <em>Bezahlter Urlaub</em> zählt gegen das 30-Tage-Kontingent — Sonderurlaub, Elternzeit und Überstundenabbau werden separat erfasst.</p>
+
+  <p><strong>Urlaubsarten:</strong></p>
+  <table>
+    <tr><th>Art</th><th>Zählt gegen 30 Tage?</th></tr>
+    <tr><td>Bezahlter Urlaub</td><td><span class="badge badge-teal">Ja</span></td></tr>
+    <tr><td>Elternzeit</td><td><span class="badge badge-gold">Nein</span></td></tr>
+    <tr><td>Sonderurlaub (bezahlt)</td><td><span class="badge badge-gold">Nein</span></td></tr>
+    <tr><td>Sonderurlaub (unbezahlt)</td><td><span class="badge badge-gold">Nein</span></td></tr>
+    <tr><td>Überstundenabbau</td><td><span class="badge badge-gold">Nein</span></td></tr>
+  </table>
+
+  <img src="screenshots/Urlaub_beantragen.png" style="width:100%;border-radius:12px;border:1px solid #eee;margin:20px 0;" />
+</div>
+
+<div class="page">
+  <h3>Meine Anträge</h3>
+  <p>Alle eigenen Urlaubsanträge mit Status (Beantragt / Genehmigt / Abgelehnt), Urlaubsart, Zeitraum und Grund. Ausstehende Anträge können storniert werden.</p>
+  <img src="screenshots/Urlaubsanträge.png" style="width:100%;border-radius:12px;border:1px solid #eee;margin:20px 0;" />
+</div>
+
+<div class="page">
+  <h3>Teamkalender</h3>
+  <p>Alle Nutzer sehen den Urlaubskalender des gesamten Teams. Farbkodierung:</p>
+  <table>
+    <tr><th>Farbe</th><th>Bedeutung</th></tr>
+    <tr><td>🟡 Gelb</td><td>Beantragt (noch nicht genehmigt)</td></tr>
+    <tr><td>🟢 Grün (teal)</td><td>Genehmigt</td></tr>
+    <tr><td>↗ Diagonal grün+rot</td><td>Genehmigt, aber Überschneidung mit anderem Urlaub</td></tr>
+    <tr><td>⬜ Grau</td><td>Wochenende oder NRW-Feiertag</td></tr>
+  </table>
+  <p>Die Zeile „Überschneidung" zeigt pro Tag die Anzahl gleichzeitig abwesender Mitarbeiter.</p>
+  <img src="screenshots/Teamkalender.png" style="width:100%;border-radius:12px;border:1px solid #eee;margin:20px 0;" />
+</div>
+
+<div class="page">
+  <h3>Genehmigungen (Vorgesetzte &amp; Admin)</h3>
+  <p>Vorgesetzte sehen alle ausstehenden Anträge ihrer Mitarbeitenden und können sie genehmigen oder ablehnen. Vorgesetzte, die selbst Urlaub eintragen, erhalten automatisch eine Genehmigung.</p>
+  <img src="screenshots/Genehmigungen.png" style="width:100%;border-radius:12px;border:1px solid #eee;margin:20px 0;" />
+</div>
+
+<div class="page">
+  <h3>Nutzerverwaltung (Admin)</h3>
+  <p>Der Admin kann Nutzer anlegen, löschen und Vorgesetzte zuweisen. Die Zuordnung Mitarbeiter↔Vorgesetzte ist m:n (ein Mitarbeiter kann mehrere Vorgesetzte haben, z. B. für Vertretungsfälle). Die Liste ist sortiert nach Rolle (Admin → Vorgesetzte → Mitarbeiter) und innerhalb der Gruppe alphabetisch.</p>
+  <img src="screenshots/Nutzerverwaltung.png" style="width:100%;border-radius:12px;border:1px solid #eee;margin:20px 0;" />
+</div>
+
+<div class="page">
+  <h3>CSV-Export</h3>
+  <p>Im Teamkalender können Vorgesetzte und Admins alle Urlaubsanträge des laufenden Jahres als CSV-Datei exportieren — direkt im Browser, ohne zusätzliche Tools.</p>
+</div>
+
+<div class="page">
+  <h3>Passwort ändern</h3>
+  <p>Jeder Nutzer kann sein Passwort selbst ändern, indem er auf seinen Namen im Header klickt. Das aktuelle Passwort muss zur Bestätigung eingegeben werden.</p>
+  <img src="screenshots/Passwortinterface.png" style="width:100%;border-radius:12px;border:1px solid #eee;margin:20px 0;" />
+</div>
+
+<!-- ══════════════════════════════════════════════ 5. PFLICHTANFORDERUNGEN ══ -->
+<div class="page">
+  <h2>5. Pflichtanforderungen — Erfüllungsstatus</h2>
+
+  <table>
+    <thead><tr><th>Anforderung</th><th>Status</th><th>Details</th></tr></thead>
+    <tbody>
+      <tr><td>Läuft auf eigenem Server mit (Sub-)Domain</td><td>✅</td><td>https://urlaub.birghan-dev.de (Hostinger VPS)</td></tr>
+      <tr><td>Benutzerverwaltung mit Login</td><td>✅</td><td>JWT + bcrypt, drei Rollen</td></tr>
+      <tr><td>Läuft in Docker</td><td>✅</td><td>Dockerfile + docker-compose im Repo</td></tr>
+      <tr><td>CSV-Export der Urlaubsanträge</td><td>✅</td><td>Im Teamkalender per Button</td></tr>
+      <tr><td>Quellcode auf GitHub</td><td>✅</td><td>github.com/MrManuu/uneq-vacation-app</td></tr>
+      <tr><td>Corporate Identity berücksichtigt</td><td>✅</td><td>Farben, Schriften, Logo aus Brand Guideline</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Extras</h3>
+  <ul class="checklist">
+    <li>NRW-Feiertage im Kalender ausgegraut (Gauss-Osteralgorithmus)</li>
+    <li>Ausstehende Anträge gelb im Teamkalender sichtbar</li>
+    <li>Vorgesetzte im Teamkalender sichtbar</li>
+    <li>Alle Nutzer sehen den gesamten Teamkalender</li>
+    <li>Vorgesetzte genehmigen eigenen Urlaub automatisch</li>
+    <li>5 Urlaubsarten — nur Bezahlter Urlaub zählt gegen Kontingent</li>
+    <li>Überschneidungsanzeige mit diagonalem Farbverlauf</li>
+    <li>Passwort-Änderungsfunktion für alle Nutzer</li>
+    <li>Mobile-optimiert: Hamburger-Menü, Card-Layouts</li>
+    <li>Rate Limiting auf Login (nginx + slowapi)</li>
+    <li>Security-Header in nginx</li>
+    <li>HTTPS-only mit automatischer Umleitung</li>
+    <li>CI/CD via GitHub Actions (lint → typecheck → build → Docker)</li>
+  </ul>
+</div>
+
+<!-- ══════════════════════════════════════════════ 6. SESSION LOG ══ -->
+<div class="page">
+  <h2>6. Session-Log (Arbeitsprotokoll)</h2>
+  <p>Das vollständige Protokoll ist öffentlich im GitHub-Repository unter <strong>README.md</strong> einsehbar.</p>
+
+  <div class="session">
+    <div class="session-header">Session 1 — 21.04.2026</div>
+    <ul>
+      <li>Aufgabenbeschreibung und Brand Guideline analysiert</li>
+      <li>Tech-Stack festgelegt und begründet (FastAPI, React, PostgreSQL, Hostinger)</li>
+      <li>Gesamtes Backend implementiert: Modelle, Auth, alle API-Routen, CSV-Export</li>
+      <li>Gesamtes Frontend implementiert: alle Seiten (Login, Dashboard, Anträge, Genehmigungen, Teamkalender, Admin)</li>
+      <li>Docker-Setup vollständig: Dockerfiles, docker-compose, nginx mit SSL-Vorbereitung</li>
+      <li>GitHub Actions CI/CD eingerichtet</li>
+      <li>UNEQ Corporate Identity im Frontend umgesetzt</li>
+    </ul>
+  </div>
+
+  <div class="session">
+    <div class="session-header">Session 2 — 22.04.2026</div>
+    <ul>
+      <li>GitHub-Repository angelegt, VPS gebucht, Domain eingerichtet</li>
+      <li>App live unter https://urlaub.birghan-dev.de deployed</li>
+      <li>CI/CD-Pipeline vollständig grün</li>
+      <li>Teamkalender erweitert: gelbe Pending-Anträge, NRW-Feiertage, alle Mitglieder sichtbar</li>
+      <li>Vorgesetzte genehmigen eigenen Urlaub automatisch beim Eintragen</li>
+      <li>Team-Tab für alle Rollen zugänglich</li>
+      <li>Bugfix: Nutzer löschen bei offenen Urlaubsanträgen (SQLAlchemy passive_deletes)</li>
+      <li>Passwort-Änderungsfunktion für alle Nutzer</li>
+      <li>Mobile-Optimierung: Hamburger-Menü, Card-Layouts</li>
+      <li>„Ausstehend" → „Beantragt" umbenannt</li>
+      <li>Überschneidungen als diagonaler Farbverlauf</li>
+      <li>Tab „Teamkalender", Legende-Reihenfolge angepasst</li>
+      <li>5 Urlaubsarten eingeführt — nur Bezahlter Urlaub zählt gegen Kontingent</li>
+      <li>Login-Fehlermeldung auf Deutsch</li>
+      <li>Fortschrittsbalken dreigeteilt (Genommen / Beantragt / Frei)</li>
+      <li>Nutzerverwaltung: Sortierung nach Rolle</li>
+      <li>Bugfix: Beantragte Tage vom verfügbaren Kontingent abgezogen</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ 7. DEMO-ZUGÄNGE ══ -->
+<div class="page">
+  <h2>7. Demo-Zugänge</h2>
+  <p>Die folgenden Accounts sind auf dem Live-System eingerichtet:</p>
+
+  <div class="infobox">
+    <h4>Login-URL: https://urlaub.birghan-dev.de</h4>
+    <table>
+      <thead><tr><th>Rolle</th><th>Name</th><th>E-Mail</th><th>Passwort</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-purple">Admin</span></td><td>Admin</td><td>admin@uneq.de</td><td>test!2211!</td></tr>
+        <tr><td><span class="badge badge-teal">Vorgesetzter</span></td><td>Max Schmietendorf</td><td>pk@uneq.de</td><td>test!2211!</td></tr>
+        <tr><td><span class="badge badge-teal">Vorgesetzter</span></td><td>Tobias Zulauf</td><td>test3@uneq.de</td><td>test!2211!</td></tr>
+        <tr><td>Mitarbeiter</td><td>Manuel Birghan</td><td>m.birghan@web.de</td><td>test!2211!</td></tr>
+        <tr><td>Mitarbeiter</td><td>Philipp Krombusch</td><td>test@uneq.de</td><td>test!2211!</td></tr>
+        <tr><td>Mitarbeiter</td><td>Flavia Polotzek</td><td>test2@uneq.de</td><td>test!2211!</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Quellcode</h3>
+  <p>Das vollständige Repository inklusive aller Commit-Historien, CI/CD-Konfiguration und README ist öffentlich einsehbar:</p>
+  <div class="infobox">
+    <h4>GitHub</h4>
+    <p>github.com/MrManuu/uneq-vacation-app</p>
+  </div>
+</div>
+
+</body>
+</html>
