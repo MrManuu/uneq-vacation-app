@@ -136,6 +136,11 @@ Der Mensch gibt Anforderungen und Kontext vor, Claude Code setzt technisch um un
 - SSL-Zertifikat via Let's Encrypt (Certbot) erfolgreich ausgestellt
 - Hostinger Firewall für Port 80/443 konfiguriert
 - **App live unter https://urlaub.birghan-dev.de**
+- CI/CD-Pipeline (GitHub Actions) vollständig grün: ruff, mypy, TypeScript-Build, Docker-Build
+- Team-Kalender erweitert: ausstehende Anträge gelb dargestellt, NRW-Feiertage ausgegraut, alle Teammitglieder inkl. Vorgesetzte sichtbar, Kalender immer angezeigt
+- Vorgesetzte genehmigen eigenen Urlaub jetzt automatisch beim Eintragen
+- Team-Tab für alle Rollen zugänglich (Mitarbeiter sehen ihr Team)
+- Bugfix: Nutzer löschen schlug fehl wenn offene Urlaubsanträge vorhanden waren (SQLAlchemy passive_deletes)
 
 #### Session 1 — 21.04.2026
 - Aufgabenbeschreibung und Brand Guideline (CI) analysiert
