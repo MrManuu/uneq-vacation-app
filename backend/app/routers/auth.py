@@ -34,7 +34,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
 def login(payload: LoginRequest, response: Response, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email).first()
     if not user or not verify_password(payload.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="E-Mail oder Passwort ist falsch")
 
     token = create_access_token(user.id)
     # Set HTTP-only cookie for browser clients

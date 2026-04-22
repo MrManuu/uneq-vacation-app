@@ -1,12 +1,21 @@
 export type UserRole = 'employee' | 'manager' | 'admin'
 export type VacationStatus = 'pending' | 'approved' | 'rejected'
-export type LeaveType = 'erholungsurlaub' | 'sonderurlaub' | 'ueberstundenabbau' | 'arztbesuch'
+export type LeaveType = 'bezahlter_urlaub' | 'elternzeit' | 'sonderurlaub_bezahlt' | 'sonderurlaub_unbezahlt' | 'ueberstundenabbau'
 
 export const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
-  erholungsurlaub: 'Erholungsurlaub',
-  sonderurlaub: 'Sonderurlaub',
+  bezahlter_urlaub: 'Bezahlter Urlaub',
+  elternzeit: 'Elternzeit',
+  sonderurlaub_bezahlt: 'Sonderurlaub (bezahlt)',
+  sonderurlaub_unbezahlt: 'Sonderurlaub (unbezahlt)',
   ueberstundenabbau: 'Überstundenabbau',
-  arztbesuch: 'Arztbesuch',
+}
+
+export const LEAVE_TYPE_COUNTS_QUOTA: Record<LeaveType, boolean> = {
+  bezahlter_urlaub: true,
+  elternzeit: false,
+  sonderurlaub_bezahlt: false,
+  sonderurlaub_unbezahlt: false,
+  ueberstundenabbau: false,
 }
 
 export interface User {

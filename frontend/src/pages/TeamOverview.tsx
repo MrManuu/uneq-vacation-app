@@ -265,10 +265,10 @@ export default function TeamOverview() {
         </table>
         <div className="p-4 border-t border-gray-100 flex flex-wrap gap-4 text-xs text-brand-gray">
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-brand-teal inline-block" /> Genehmigt
+            <span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#FBB040' }} /> Beantragt
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#FBB040' }} /> Beantragt
+            <span className="w-3 h-3 rounded bg-brand-teal inline-block" /> Genehmigt
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded inline-block" style={{ background: 'linear-gradient(135deg, #00A79D 50%, #ef4444 50%)' }} /> Überschneidung

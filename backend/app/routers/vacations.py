@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.auth import get_current_user, require_manager
 from app.database import get_db
-from app.models import VACATION_DAYS_PER_YEAR, User, UserRole, VacationRequest, VacationStatus
+from app.models import VACATION_DAYS_PER_YEAR, LeaveType, User, UserRole, VacationRequest, VacationStatus
 from app.schemas import (
     RemainingDaysOut,
     VacationRequestCreate,
@@ -51,8 +51,8 @@ def _calc_remaining(db: Session, employee_id: int, year: int) -> RemainingDaysOu
         )
         .all()
     )
-    used = sum(r.working_days for r in all_requests if r.status == VacationStatus.approved)
-    pending = sum(r.working_days for r in all_requests if r.status == VacationStatus.pending)
+    used = sum(r.working_days for r in all_requests if r.status == VacationStatus.approved and r.leave_type == LeaveType.bezahlter_urlaub)
+    pending = sum(r.working_days for r in all_requests if r.status == VacationStatus.pending and r.leave_type == LeaveType.bezahlter_urlaub)
     return RemainingDaysOut(
         year=year,
         total_days=VACATION_DAYS_PER_YEAR,
@@ -95,12 +95,13 @@ def create_request(
         raise HTTPException(status_code=400, detail="No working days in selected range")
 
     year = payload.start_date.year
-    remaining = _calc_remaining(db, current_user.id, year)
-    if working_days > remaining.remaining_days:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Not enough vacation days. Remaining: {remaining.remaining_days}, requested: {working_days}",
-        )
+    if payload.leave_type == LeaveType.bezahlter_urlaub:
+        remaining = _calc_remaining(db, current_user.id, year)
+        if working_days > remaining.remaining_days:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Nicht genug Urlaubstage. Verfügbar: {remaining.remaining_days}, beantragt: {working_days}",
+            )
 
     is_manager = current_user.role in (UserRole.manager, UserRole.admin)
     req = VacationRequest(

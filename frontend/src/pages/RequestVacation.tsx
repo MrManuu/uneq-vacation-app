@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '@/api/client'
 import type { LeaveType, RemainingDays } from '@/types'
-import { LEAVE_TYPE_LABELS } from '@/types'
+import { LEAVE_TYPE_LABELS, LEAVE_TYPE_COUNTS_QUOTA } from '@/types'
 import toast from 'react-hot-toast'
 import { eachDayOfInterval, isWeekend, parseISO } from 'date-fns'
 
@@ -30,11 +30,12 @@ export default function RequestVacation() {
   }, [])
 
   const workingDays = countWorkingDays(startDate, endDate)
-  const enoughDays = remaining ? workingDays <= remaining.remaining_days : true
+  const countsQuota = LEAVE_TYPE_COUNTS_QUOTA[leaveType]
+  const enoughDays = !countsQuota || (remaining ? workingDays <= remaining.remaining_days : true)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!enoughDays) {
+    if (countsQuota && !enoughDays) {
       toast.error('Nicht genug Urlaubstage verfügbar')
       return
     }
@@ -69,13 +70,19 @@ export default function RequestVacation() {
         <div className="card flex items-center gap-4 bg-brand-dark text-white">
           <div className="w-1 self-stretch rounded-full bg-brand-gold flex-shrink-0" />
           <div>
-            <p className="text-sm font-semibold">
-              {remaining.remaining_days} Tage verfügbar
-            </p>
-            <p className="text-xs opacity-60">
-              {remaining.used_days} von {remaining.total_days} Tagen genommen ·{' '}
-              {remaining.pending_days} beantragt
-            </p>
+            {countsQuota ? (
+              <>
+                <p className="text-sm font-semibold">{remaining.remaining_days} Tage verfügbar</p>
+                <p className="text-xs opacity-60">
+                  {remaining.used_days} von {remaining.total_days} Tagen genommen ·{' '}
+                  {remaining.pending_days} beantragt
+                </p>
+              </>
+            ) : (
+              <p className="text-sm font-semibold opacity-80">
+                Diese Urlaubsart zählt nicht gegen dein Kontingent
+              </p>
+            )}
           </div>
         </div>
       )}

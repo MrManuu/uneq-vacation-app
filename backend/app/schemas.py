@@ -61,7 +61,7 @@ class VacationRequestCreate(BaseModel):
     start_date: date
     end_date: date
     reason: Optional[str] = None
-    leave_type: LeaveType = LeaveType.erholungsurlaub
+    leave_type: LeaveType = LeaveType.bezahlter_urlaub
 
     @model_validator(mode="after")
     def end_after_start(self) -> "VacationRequestCreate":

@@ -56,7 +56,7 @@ export default function Layout({ children }: LayoutProps) {
           <nav className="hidden md:flex items-center gap-6">
             <NavLink to="/dashboard" className={navClass}>Übersicht</NavLink>
             <NavLink to="/my-requests" className={navClass}>Meine Anträge</NavLink>
-            <NavLink to="/team" className={navClass}>Team</NavLink>
+            <NavLink to="/team" className={navClass}>Teamkalender</NavLink>
             {isManager && (
               <NavLink to="/approvals" className={navClass}>Genehmigungen</NavLink>
             )}
@@ -103,7 +103,7 @@ export default function Layout({ children }: LayoutProps) {
             </p>
             <Link to="/dashboard" className={mobileNavClass('/dashboard')} onClick={closeMenu}>Übersicht</Link>
             <Link to="/my-requests" className={mobileNavClass('/my-requests')} onClick={closeMenu}>Meine Anträge</Link>
-            <Link to="/team" className={mobileNavClass('/team')} onClick={closeMenu}>Team</Link>
+            <Link to="/team" className={mobileNavClass('/team')} onClick={closeMenu}>Teamkalender</Link>
             {isManager && (
               <Link to="/approvals" className={mobileNavClass('/approvals')} onClick={closeMenu}>Genehmigungen</Link>
             )}
