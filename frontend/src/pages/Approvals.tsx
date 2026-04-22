@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import api from '@/api/client'
 import type { VacationRequest } from '@/types'
+import { LEAVE_TYPE_LABELS } from '@/types'
 import StatusBadge from '@/components/StatusBadge'
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
@@ -60,7 +61,7 @@ export default function Approvals() {
                 <p className="text-sm text-brand-gray">
                   {format(new Date(r.start_date), 'd. MMM', { locale: de })} –{' '}
                   {format(new Date(r.end_date), 'd. MMM yyyy', { locale: de })} ·{' '}
-                  <strong>{r.working_days} Arbeitstage</strong>
+                  <strong>{r.working_days} Arbeitstage</strong> · {LEAVE_TYPE_LABELS[r.leave_type]}
                 </p>
                 {r.reason && <p className="text-xs text-brand-gray mt-1">„{r.reason}"</p>}
                 <p className="text-xs text-brand-gray mt-1 opacity-60">

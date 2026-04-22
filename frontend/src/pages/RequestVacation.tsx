@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '@/api/client'
-import type { RemainingDays } from '@/types'
+import type { LeaveType, RemainingDays } from '@/types'
+import { LEAVE_TYPE_LABELS } from '@/types'
 import toast from 'react-hot-toast'
 import { eachDayOfInterval, isWeekend, parseISO } from 'date-fns'
 
@@ -20,6 +21,7 @@ export default function RequestVacation() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [reason, setReason] = useState('')
+  const [leaveType, setLeaveType] = useState<LeaveType>('erholungsurlaub')
   const [loading, setLoading] = useState(false)
   const [remaining, setRemaining] = useState<RemainingDays | null>(null)
 
@@ -42,6 +44,7 @@ export default function RequestVacation() {
         start_date: startDate,
         end_date: endDate,
         reason: reason || null,
+        leave_type: leaveType,
       })
       toast.success('Urlaubsantrag eingereicht!')
       navigate('/my-requests')
@@ -78,6 +81,21 @@ export default function RequestVacation() {
       )}
 
       <form onSubmit={handleSubmit} className="card space-y-5">
+        <div>
+            <label className="block text-xs font-semibold text-brand-gray uppercase tracking-wide mb-1.5">
+              Art des Urlaubs
+            </label>
+            <select
+              className="input"
+              value={leaveType}
+              onChange={(e) => setLeaveType(e.target.value as LeaveType)}
+            >
+              {(Object.entries(LEAVE_TYPE_LABELS) as [LeaveType, string][]).map(([val, label]) => (
+                <option key={val} value={val}>{label}</option>
+              ))}
+            </select>
+          </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold text-brand-gray uppercase tracking-wide mb-1.5">

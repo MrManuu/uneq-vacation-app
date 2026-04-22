@@ -1,5 +1,13 @@
 export type UserRole = 'employee' | 'manager' | 'admin'
 export type VacationStatus = 'pending' | 'approved' | 'rejected'
+export type LeaveType = 'erholungsurlaub' | 'sonderurlaub' | 'ueberstundenabbau' | 'arztbesuch'
+
+export const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
+  erholungsurlaub: 'Erholungsurlaub',
+  sonderurlaub: 'Sonderurlaub',
+  ueberstundenabbau: 'Überstundenabbau',
+  arztbesuch: 'Arztbesuch',
+}
 
 export interface User {
   id: number
@@ -22,6 +30,7 @@ export interface VacationRequest {
   end_date: string
   working_days: number
   reason: string | null
+  leave_type: LeaveType
   status: VacationStatus
   reviewed_by_id: number | null
   reviewer: User | null

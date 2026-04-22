@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import api from '@/api/client'
 import type { VacationRequest } from '@/types'
+import { LEAVE_TYPE_LABELS } from '@/types'
 import StatusBadge from '@/components/StatusBadge'
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
@@ -57,6 +58,7 @@ export default function MyRequests() {
                 <tr className="bg-gray-50 border-b border-gray-100">
                   <th className="text-left px-6 py-3 text-xs font-semibold text-brand-gray uppercase tracking-wide">Zeitraum</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-brand-gray uppercase tracking-wide">Tage</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-brand-gray uppercase tracking-wide">Art</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-brand-gray uppercase tracking-wide">Grund</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-brand-gray uppercase tracking-wide">Status</th>
                   <th className="px-6 py-3" />
@@ -70,6 +72,7 @@ export default function MyRequests() {
                       {format(new Date(r.end_date), 'd. MMM yyyy', { locale: de })}
                     </td>
                     <td className="px-6 py-4 text-brand-gray">{r.working_days}</td>
+                    <td className="px-6 py-4 text-brand-gray">{LEAVE_TYPE_LABELS[r.leave_type]}</td>
                     <td className="px-6 py-4 text-brand-gray max-w-xs truncate">{r.reason || '—'}</td>
                     <td className="px-6 py-4"><StatusBadge status={r.status} /></td>
                     <td className="px-6 py-4 text-right">
@@ -96,7 +99,7 @@ export default function MyRequests() {
                   </p>
                   <StatusBadge status={r.status} />
                 </div>
-                <p className="text-xs text-brand-gray">{r.working_days} Arbeitstage{r.reason ? ` · ${r.reason}` : ''}</p>
+                <p className="text-xs text-brand-gray">{LEAVE_TYPE_LABELS[r.leave_type]} · {r.working_days} Arbeitstage{r.reason ? ` · ${r.reason}` : ''}</p>
                 {r.status === 'pending' && (
                   <button onClick={() => cancel(r.id)} className="text-xs text-red-500 font-medium">
                     Stornieren

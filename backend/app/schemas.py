@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, field_validator, model_validator
 
-from app.models import UserRole, VacationStatus
+from app.models import LeaveType, UserRole, VacationStatus
 
 
 # ── Auth ──────────────────────────────────────────────────────────────────────
@@ -61,6 +61,7 @@ class VacationRequestCreate(BaseModel):
     start_date: date
     end_date: date
     reason: Optional[str] = None
+    leave_type: LeaveType = LeaveType.erholungsurlaub
 
     @model_validator(mode="after")
     def end_after_start(self) -> "VacationRequestCreate":
@@ -88,6 +89,7 @@ class VacationRequestOut(BaseModel):
     end_date: date
     working_days: int
     reason: Optional[str]
+    leave_type: LeaveType
     status: VacationStatus
     reviewed_by_id: Optional[int]
     reviewer: Optional[UserOut]

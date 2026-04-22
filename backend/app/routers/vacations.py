@@ -109,6 +109,7 @@ def create_request(
         end_date=payload.end_date,
         working_days=working_days,
         reason=payload.reason,
+        leave_type=payload.leave_type,
         status=VacationStatus.approved if is_manager else VacationStatus.pending,
         reviewed_by_id=current_user.id if is_manager else None,
         reviewed_at=datetime.now(timezone.utc) if is_manager else None,

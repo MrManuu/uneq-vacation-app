@@ -31,6 +31,13 @@ class VacationStatus(str, PyEnum):
     rejected = "rejected"
 
 
+class LeaveType(str, PyEnum):
+    erholungsurlaub = "erholungsurlaub"
+    sonderurlaub = "sonderurlaub"
+    ueberstundenabbau = "ueberstundenabbau"
+    arztbesuch = "arztbesuch"
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -69,6 +76,7 @@ class VacationRequest(Base):
     end_date = Column(Date, nullable=False)
     working_days = Column(Integer, nullable=False)
     reason = Column(Text, nullable=True)
+    leave_type = Column(String(50), nullable=False, server_default=LeaveType.erholungsurlaub)
     status = Column(Enum(VacationStatus), nullable=False, default=VacationStatus.pending)
     reviewed_by_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     reviewed_at = Column(DateTime(timezone=True), nullable=True)
