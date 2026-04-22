@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -102,12 +102,16 @@ def create_request(
             detail=f"Not enough vacation days. Remaining: {remaining.remaining_days}, requested: {working_days}",
         )
 
+    is_manager = current_user.role in (UserRole.manager, UserRole.admin)
     req = VacationRequest(
         employee_id=current_user.id,
         start_date=payload.start_date,
         end_date=payload.end_date,
         working_days=working_days,
         reason=payload.reason,
+        status=VacationStatus.approved if is_manager else VacationStatus.pending,
+        reviewed_by_id=current_user.id if is_manager else None,
+        reviewed_at=datetime.now(timezone.utc) if is_manager else None,
     )
     db.add(req)
     db.commit()
@@ -140,9 +144,7 @@ def team_requests(
     current_user: User = Depends(require_manager),
     db: Session = Depends(get_db),
 ):
-    employee_ids = [u.id for u in current_user.subordinates]
-    if not employee_ids:
-        return []
+    employee_ids = [u.id for u in current_user.subordinates] + [current_user.id]
     q = db.query(VacationRequest).filter(VacationRequest.employee_id.in_(employee_ids))
     if status:
         q = q.filter(VacationRequest.status == status)
@@ -156,7 +158,7 @@ def team_remaining(
     db: Session = Depends(get_db),
 ):
     result = []
-    for emp in current_user.subordinates:
+    for emp in list(current_user.subordinates) + [current_user]:
         rem = _calc_remaining(db, emp.id, year)
         result.append({
             "employee": {"id": emp.id, "full_name": emp.full_name, "email": emp.email},
@@ -172,8 +174,6 @@ def review_request(
     current_user: User = Depends(require_manager),
     db: Session = Depends(get_db),
 ):
-    from datetime import datetime, timezone
-
     req = db.get(VacationRequest, request_id)
     if not req:
         raise HTTPException(status_code=404, detail="Request not found")

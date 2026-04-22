@@ -1,13 +1,66 @@
 import { useEffect, useState, useMemo } from 'react'
 import api from '@/api/client'
 import type { TeamRemaining, VacationRequest } from '@/types'
-import { format, eachDayOfInterval, parseISO, isWeekend, startOfMonth, endOfMonth, eachMonthOfInterval, startOfYear, endOfYear } from 'date-fns'
+import {
+  format,
+  eachDayOfInterval,
+  parseISO,
+  isWeekend,
+  startOfMonth,
+  endOfMonth,
+  eachMonthOfInterval,
+  startOfYear,
+  endOfYear,
+} from 'date-fns'
 import { de } from 'date-fns/locale'
 
 const MONTHS = eachMonthOfInterval({
   start: startOfYear(new Date()),
   end: endOfYear(new Date()),
 })
+
+function getEasterDate(year: number): Date {
+  const a = year % 19
+  const b = Math.floor(year / 100)
+  const c = year % 100
+  const d = Math.floor(b / 4)
+  const e = b % 4
+  const f = Math.floor((b + 8) / 25)
+  const g = Math.floor((b - f + 1) / 3)
+  const h = (19 * a + b - d - g + 15) % 30
+  const i = Math.floor(c / 4)
+  const k = c % 4
+  const l = (32 + 2 * e + 2 * i - h - k) % 7
+  const m = Math.floor((a + 11 * h + 22 * l) / 451)
+  const month = Math.floor((h + l - 7 * m + 114) / 31)
+  const day = ((h + l - 7 * m + 114) % 31) + 1
+  return new Date(year, month - 1, day)
+}
+
+function getNRWHolidays(year: number): Set<string> {
+  const easter = getEasterDate(year)
+  const add = (d: Date, n: number) => {
+    const r = new Date(d)
+    r.setDate(r.getDate() + n)
+    return r
+  }
+  const fmt = (d: Date) => d.toISOString().split('T')[0]
+  return new Set([
+    fmt(new Date(year, 0, 1)),   // Neujahr
+    fmt(add(easter, -2)),         // Karfreitag
+    fmt(add(easter, 1)),          // Ostermontag
+    fmt(new Date(year, 4, 1)),    // Tag der Arbeit
+    fmt(add(easter, 39)),         // Christi Himmelfahrt
+    fmt(add(easter, 50)),         // Pfingstmontag
+    fmt(add(easter, 60)),         // Fronleichnam
+    fmt(new Date(year, 9, 3)),    // Tag der deutschen Einheit
+    fmt(new Date(year, 10, 1)),   // Allerheiligen
+    fmt(new Date(year, 11, 25)), // 1. Weihnachtstag
+    fmt(new Date(year, 11, 26)), // 2. Weihnachtstag
+  ])
+}
+
+const NRW_HOLIDAYS = getNRWHolidays(new Date().getFullYear())
 
 export default function TeamOverview() {
   const [requests, setRequests] = useState<VacationRequest[]>([])
@@ -23,34 +76,37 @@ export default function TeamOverview() {
   const month = MONTHS[selectedMonth]
   const monthStart = startOfMonth(month)
   const monthEnd = endOfMonth(month)
-  const workingDays = eachDayOfInterval({ start: monthStart, end: monthEnd }).filter(
-    (d) => !isWeekend(d),
+  const calendarDays = eachDayOfInterval({ start: monthStart, end: monthEnd }).filter(
+    (d) => !isWeekend(d) && !NRW_HOLIDAYS.has(d.toISOString().split('T')[0]),
   )
 
-  // approved requests intersecting the selected month
-  const approvedInMonth = requests.filter(
+  const relevantInMonth = requests.filter(
     (r) =>
-      r.status === 'approved' &&
+      (r.status === 'approved' || r.status === 'pending') &&
       parseISO(r.end_date) >= monthStart &&
       parseISO(r.start_date) <= monthEnd,
   )
 
-  // For each working day, count how many employees are on vacation
-  const overlapMap = useMemo(() => {
-    const map = new Map<string, string[]>()
-    for (const day of workingDays) {
-      const names: string[] = []
-      for (const r of approvedInMonth) {
+  const allMembers = teamRemaining.map((t) => t.employee)
+
+  const dayMap = useMemo(() => {
+    const map = new Map<string, { approved: string[]; pending: string[] }>()
+    for (const day of calendarDays) {
+      const key = day.toISOString().split('T')[0]
+      const approved: string[] = []
+      const pending: string[] = []
+      for (const r of relevantInMonth) {
         const s = parseISO(r.start_date)
         const e = parseISO(r.end_date)
-        if (day >= s && day <= e) names.push(r.employee.full_name)
+        if (day >= s && day <= e) {
+          if (r.status === 'approved') approved.push(r.employee.full_name)
+          else pending.push(r.employee.full_name)
+        }
       }
-      map.set(day.toISOString().split('T')[0], names)
+      map.set(key, { approved, pending })
     }
     return map
-  }, [approvedInMonth, workingDays])
-
-  const employees = [...new Map(approvedInMonth.map((r) => [r.employee_id, r.employee])).values()]
+  }, [relevantInMonth, calendarDays])
 
   const handleExport = async () => {
     setExportLoading(true)
@@ -108,80 +164,95 @@ export default function TeamOverview() {
             {format(month, 'MMMM yyyy', { locale: de })}
           </h2>
         </div>
-        {employees.length === 0 ? (
-          <p className="p-6 text-brand-gray text-sm">
-            Keine genehmigten Urlaube in diesem Monat.
-          </p>
-        ) : (
-          <table className="w-full text-xs min-w-[600px]">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="text-left px-4 py-2 text-brand-gray font-semibold w-32 sticky left-0 bg-gray-50">
-                  Mitarbeiter
-                </th>
-                {workingDays.map((d) => {
-                  const key = d.toISOString().split('T')[0]
-                  const count = overlapMap.get(key)?.length ?? 0
-                  return (
-                    <th
-                      key={key}
-                      className={`px-1 py-2 text-center font-medium min-w-[28px] ${
-                        count > 1 ? 'text-red-500' : 'text-brand-gray'
-                      }`}
-                    >
-                      {format(d, 'd')}
-                    </th>
-                  )
-                })}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {employees.map((emp) => (
-                <tr key={emp.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2 font-medium text-brand-dark sticky left-0 bg-white whitespace-nowrap">
-                    {emp.full_name.split(' ')[0]}
-                  </td>
-                  {workingDays.map((d) => {
-                    const key = d.toISOString().split('T')[0]
-                    const isOff = overlapMap.get(key)?.includes(emp.full_name) ?? false
-                    const overlap = (overlapMap.get(key)?.length ?? 0) > 1
-                    return (
-                      <td key={key} className="px-1 py-2 text-center">
-                        {isOff && (
-                          <span
-                            className="block w-5 h-5 rounded mx-auto"
-                            style={{ backgroundColor: overlap ? '#ef4444' : '#00A79D' }}
-                            title={overlap ? 'Überschneidung!' : 'Urlaub'}
-                          />
-                        )}
-                      </td>
-                    )
-                  })}
-                </tr>
-              ))}
-              {/* Overlap row */}
-              <tr className="bg-gray-50">
-                <td className="px-4 py-2 text-xs font-semibold text-brand-gray sticky left-0 bg-gray-50">
-                  Überschneidung
+        <table className="w-full text-xs min-w-[600px]">
+          <thead>
+            <tr className="bg-gray-50">
+              <th className="text-left px-4 py-2 text-brand-gray font-semibold w-32 sticky left-0 bg-gray-50">
+                Mitarbeiter
+              </th>
+              {calendarDays.map((d) => {
+                const key = d.toISOString().split('T')[0]
+                const entry = dayMap.get(key)
+                const count = (entry?.approved.length ?? 0) + (entry?.pending.length ?? 0)
+                return (
+                  <th
+                    key={key}
+                    className={`px-1 py-2 text-center font-medium min-w-[28px] ${
+                      count > 1 ? 'text-red-500' : 'text-brand-gray'
+                    }`}
+                  >
+                    {format(d, 'd')}
+                  </th>
+                )
+              })}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {allMembers.map((emp) => (
+              <tr key={emp.id} className="hover:bg-gray-50">
+                <td className="px-4 py-2 font-medium text-brand-dark sticky left-0 bg-white whitespace-nowrap">
+                  {emp.full_name.split(' ')[0]}
                 </td>
-                {workingDays.map((d) => {
+                {calendarDays.map((d) => {
                   const key = d.toISOString().split('T')[0]
-                  const count = overlapMap.get(key)?.length ?? 0
+                  const entry = dayMap.get(key)
+                  const isApproved = entry?.approved.includes(emp.full_name) ?? false
+                  const isPending = entry?.pending.includes(emp.full_name) ?? false
+                  const totalOnDay = (entry?.approved.length ?? 0) + (entry?.pending.length ?? 0)
+                  const overlap = totalOnDay > 1
+
+                  let color: string | undefined
+                  if (isApproved || isPending) {
+                    if (overlap) color = '#ef4444'
+                    else if (isApproved) color = '#00A79D'
+                    else color = '#FBB040'
+                  }
+
                   return (
                     <td key={key} className="px-1 py-2 text-center">
-                      {count > 1 && (
-                        <span className="text-red-500 font-bold">{count}</span>
+                      {color && (
+                        <span
+                          className="block w-5 h-5 rounded mx-auto"
+                          style={{ backgroundColor: color }}
+                          title={
+                            overlap
+                              ? 'Überschneidung!'
+                              : isApproved
+                                ? 'Urlaub (genehmigt)'
+                                : 'Urlaub (ausstehend)'
+                          }
+                        />
                       )}
                     </td>
                   )
                 })}
               </tr>
-            </tbody>
-          </table>
-        )}
+            ))}
+            {/* Overlap row */}
+            <tr className="bg-gray-50">
+              <td className="px-4 py-2 text-xs font-semibold text-brand-gray sticky left-0 bg-gray-50">
+                Überschneidung
+              </td>
+              {calendarDays.map((d) => {
+                const key = d.toISOString().split('T')[0]
+                const entry = dayMap.get(key)
+                const count = (entry?.approved.length ?? 0) + (entry?.pending.length ?? 0)
+                return (
+                  <td key={key} className="px-1 py-2 text-center">
+                    {count > 1 && <span className="text-red-500 font-bold">{count}</span>}
+                  </td>
+                )
+              })}
+            </tr>
+          </tbody>
+        </table>
         <div className="p-4 border-t border-gray-100 flex gap-4 text-xs text-brand-gray">
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-brand-teal inline-block" /> Urlaub
+            <span className="w-3 h-3 rounded bg-brand-teal inline-block" /> Genehmigt
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#FBB040' }} />{' '}
+            Ausstehend
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-red-500 inline-block" /> Überschneidung
