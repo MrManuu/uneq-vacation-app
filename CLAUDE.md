@@ -4,16 +4,6 @@
 Bewerbungsprojekt für UNEQ Consulting — der Arbeitgeber prüft damit, wie gut der Bewerber KI-Tools zur Umsetzung einsetzen kann.
 **Deadline: 27.04.2026 (Montag)**
 
-## Originale Aufgabenbeschreibung (vollständig)
-
-> Baue eine kleine Webanwendung zur Urlaubsverwaltung. Die App soll zwei Rollen unterstützen: Mitarbeitende und Vorgesetzte. Dabei soll es möglich sein, Mitarbeitende ihren jeweiligen Vorgesetzten zuzuordnen. Ein Vorgesetzter kann mehrere Mitarbeitende haben, und es sollte auch denkbar sein, einem Mitarbeitenden bei Bedarf mehrere Vorgesetzte zuzuweisen (z. B. für Vertretungsfälle). Wie du das technisch und in der UI löst, ist dir überlassen.
->
-> Mitarbeitende sollen Urlaub beantragen, ihre eigenen Anträge samt Status einsehen und ihren Resturlaub im laufenden Jahr sehen können. Vorgesetzte sollen die Anträge ihrer zugeordneten Mitarbeitenden genehmigen oder ablehnen können und brauchen eine Übersicht, aus der sich Überschneidungen im Team erkennen lassen.
->
-> Der Urlaubsanspruch kann der Einfachheit halber pauschal auf 30 Tage pro Jahr gesetzt werden.
->
-> Technische Rahmenbedingungen (Stack, Framework, Datenbank und Hosting-Anbieter) kannst du frei wählen – wir sind neugierig, was du nimmst und warum.
-
 ### Pflichtanforderungen
 1. App läuft auf einem angemieteten Server, erreichbar über eigene (Sub-)Domain
 2. Benutzerverwaltung mit Login
