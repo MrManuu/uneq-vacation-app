@@ -142,6 +142,10 @@ Der Mensch gibt Anforderungen und Kontext vor, Claude Code setzt technisch um un
 - Team-Tab für alle Rollen zugänglich (Mitarbeiter sehen ihr Team)
 - Bugfix: Nutzer löschen schlug fehl wenn offene Urlaubsanträge vorhanden waren (SQLAlchemy passive_deletes)
 - Passwort-Änderungsfunktion für alle Nutzer eingebaut (Klick auf Nutzername im Header öffnet Modal)
+- Mobile-Optimierung: Hamburger-Menü, Card-Layouts für Tabellen (Anträge, Nutzerverwaltung)
+- Bezeichnung "Ausstehend" durchgehend zu "Beantragt" umbenannt
+- Team-Kalender: alle Nutzer sehen jetzt alle Kollegen (nicht nur eigenes Team)
+- Überschneidungen im Kalender als diagonaler Farbverlauf (grün/gelb + rot) statt komplett rot dargestellt
 
 #### Session 1 — 21.04.2026
 - Aufgabenbeschreibung und Brand Guideline (CI) analysiert
