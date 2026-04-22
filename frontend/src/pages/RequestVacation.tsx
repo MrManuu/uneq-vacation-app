@@ -71,7 +71,7 @@ export default function RequestVacation() {
             </p>
             <p className="text-xs opacity-60">
               {remaining.used_days} von {remaining.total_days} Tagen genommen ·{' '}
-              {remaining.pending_days} ausstehend
+              {remaining.pending_days} beantragt
             </p>
           </div>
         </div>

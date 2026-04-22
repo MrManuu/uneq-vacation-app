@@ -73,7 +73,7 @@ export default function TeamOverview() {
   const [exportLoading, setExportLoading] = useState(false)
 
   useEffect(() => {
-    api.get<VacationRequest[]>('/vacations/team').then((r) => setRequests(r.data))
+    api.get<VacationRequest[]>('/vacations/all').then((r) => setRequests(r.data))
     api.get<TeamRemaining[]>('/vacations/team/remaining').then((r) => setTeamRemaining(r.data))
   }, [])
 
@@ -136,7 +136,7 @@ export default function TeamOverview() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-3xl font-heading font-bold">Teamübersicht</h1>
-          <p className="text-brand-gray mt-1">Urlaubskalender und Resttage deines Teams</p>
+          <p className="text-brand-gray mt-1">Urlaubskalender und Resttage des gesamten Teams</p>
         </div>
         <button onClick={handleExport} disabled={exportLoading} className="btn-secondary">
           {exportLoading ? 'Exportiert …' : 'CSV exportieren'}
@@ -215,26 +215,23 @@ export default function TeamOverview() {
                   const totalOnDay = (entry?.approved.length ?? 0) + (entry?.pending.length ?? 0)
                   const overlap = totalOnDay > 1
 
-                  let color: string | undefined
-                  if (isApproved || isPending) {
-                    if (overlap) color = '#ef4444'
-                    else if (isApproved) color = '#00A79D'
-                    else color = '#FBB040'
+                  let bgColor: string | undefined
+                  let tooltip: string | undefined
+                  if (isApproved) {
+                    bgColor = '#00A79D'
+                    tooltip = overlap ? 'Genehmigt (Überschneidung!)' : 'Urlaub (genehmigt)'
+                  } else if (isPending) {
+                    bgColor = '#FBB040'
+                    tooltip = overlap ? 'Beantragt (Überschneidung!)' : 'Urlaub (beantragt)'
                   }
 
                   return (
                     <td key={key} className="px-0.5 py-2 text-center">
-                      {color && (
+                      {bgColor && (
                         <span
-                          className="block w-4 h-4 rounded mx-auto"
-                          style={{ backgroundColor: color }}
-                          title={
-                            overlap
-                              ? 'Überschneidung!'
-                              : isApproved
-                                ? 'Urlaub (genehmigt)'
-                                : 'Urlaub (ausstehend)'
-                          }
+                          className={`block w-4 h-4 rounded mx-auto ${overlap ? 'ring-2 ring-red-500' : ''}`}
+                          style={{ backgroundColor: bgColor }}
+                          title={tooltip}
                         />
                       )}
                     </td>
@@ -262,16 +259,15 @@ export default function TeamOverview() {
             </tr>
           </tbody>
         </table>
-        <div className="p-4 border-t border-gray-100 flex gap-4 text-xs text-brand-gray">
+        <div className="p-4 border-t border-gray-100 flex flex-wrap gap-4 text-xs text-brand-gray">
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-brand-teal inline-block" /> Genehmigt
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#FBB040' }} />{' '}
-            Ausstehend
+            <span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#FBB040' }} /> Beantragt
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-red-500 inline-block" /> Überschneidung
+            <span className="w-3 h-3 rounded bg-brand-teal inline-block ring-2 ring-red-500" /> Überschneidung
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-gray-200 inline-block" /> Wochenende / Feiertag
@@ -292,7 +288,7 @@ export default function TeamOverview() {
                     <span className="font-medium">{t.employee.full_name}</span>
                     <span className="text-brand-gray">
                       {t.remaining_days} verbleibend · {t.used_days} genommen
-                      {t.pending_days > 0 && ` · ${t.pending_days} ausstehend`}
+                      {t.pending_days > 0 && ` · ${t.pending_days} beantragt`}
                     </span>
                   </div>
                   <div className="h-2 bg-gray-100 rounded-full overflow-hidden">

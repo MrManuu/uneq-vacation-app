@@ -45,7 +45,7 @@ export default function Dashboard() {
             color="#00A79D"
           />
           <StatCard
-            label="Ausstehend"
+            label="Beantragt"
             value={remaining.pending_days}
             total={remaining.total_days}
             color="#FBB040"

@@ -138,6 +138,19 @@ def cancel_request(
 
 # ── Manager endpoints ──────────────────────────────────────────────────────────
 
+@router.get("/all", response_model=list[VacationRequestOut])
+def all_requests(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return (
+        db.query(VacationRequest)
+        .filter(VacationRequest.status.in_([VacationStatus.approved, VacationStatus.pending]))
+        .order_by(VacationRequest.start_date)
+        .all()
+    )
+
+
 @router.get("/team", response_model=list[VacationRequestOut])
 def team_requests(
     status: VacationStatus | None = None,
@@ -162,18 +175,10 @@ def team_requests(
 @router.get("/team/remaining", response_model=list[dict])
 def team_remaining(
     year: int = Query(default=date.today().year),
-    current_user: User = Depends(get_current_user),
+    _: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    if current_user.role == UserRole.employee:
-        team_ids: set[int] = {current_user.id}
-        for manager in current_user.managers:
-            team_ids.add(manager.id)
-            for sub in manager.subordinates:
-                team_ids.add(sub.id)
-        members = db.query(User).filter(User.id.in_(team_ids)).all()
-    else:
-        members = list(current_user.subordinates) + [current_user]
+    members = db.query(User).order_by(User.full_name).all()
     result = []
     for emp in members:
         rem = _calc_remaining(db, emp.id, year)

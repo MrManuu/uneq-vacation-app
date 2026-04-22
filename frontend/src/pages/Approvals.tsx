@@ -35,7 +35,7 @@ export default function Approvals() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-heading font-bold">Genehmigungen</h1>
-        <p className="text-brand-gray mt-1">Ausstehende Urlaubsanträge deiner Mitarbeitenden</p>
+        <p className="text-brand-gray mt-1">Beantragte Urlaubsanträge deiner Mitarbeitenden</p>
       </div>
 
       {loading ? (
@@ -43,7 +43,7 @@ export default function Approvals() {
       ) : requests.length === 0 ? (
         <div className="card text-center py-12">
           <p className="text-2xl mb-2">✓</p>
-          <p className="text-brand-gray font-medium">Keine ausstehenden Anträge</p>
+          <p className="text-brand-gray font-medium">Keine beantragten Anträge</p>
         </div>
       ) : (
         <div className="space-y-3">
