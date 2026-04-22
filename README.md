@@ -137,7 +137,7 @@ Der Mensch gibt Anforderungen und Kontext vor, Claude Code setzt technisch um un
 - Hostinger Firewall für Port 80/443 konfiguriert
 - **App live unter https://urlaub.birghan-dev.de**
 
-#### Session 1 — 20.04.2026
+#### Session 1 — 21.04.2026
 - Aufgabenbeschreibung und Brand Guideline (CI) analysiert
 - Tech-Stack festgelegt und begründet (FastAPI, React, PostgreSQL, Hetzner/Hostinger)
 - Gesamtes Backend implementiert: Modelle, Auth, alle API-Routen, CSV-Export
