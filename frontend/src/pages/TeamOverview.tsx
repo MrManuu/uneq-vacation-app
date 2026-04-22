@@ -46,21 +46,25 @@ function getNRWHolidays(year: number): Set<string> {
   }
   const fmt = (d: Date) => d.toISOString().split('T')[0]
   return new Set([
-    fmt(new Date(year, 0, 1)),   // Neujahr
-    fmt(add(easter, -2)),         // Karfreitag
-    fmt(add(easter, 1)),          // Ostermontag
-    fmt(new Date(year, 4, 1)),    // Tag der Arbeit
-    fmt(add(easter, 39)),         // Christi Himmelfahrt
-    fmt(add(easter, 50)),         // Pfingstmontag
-    fmt(add(easter, 60)),         // Fronleichnam
-    fmt(new Date(year, 9, 3)),    // Tag der deutschen Einheit
-    fmt(new Date(year, 10, 1)),   // Allerheiligen
-    fmt(new Date(year, 11, 25)), // 1. Weihnachtstag
-    fmt(new Date(year, 11, 26)), // 2. Weihnachtstag
+    fmt(new Date(year, 0, 1)),
+    fmt(add(easter, -2)),
+    fmt(add(easter, 1)),
+    fmt(new Date(year, 4, 1)),
+    fmt(add(easter, 39)),
+    fmt(add(easter, 50)),
+    fmt(add(easter, 60)),
+    fmt(new Date(year, 9, 3)),
+    fmt(new Date(year, 10, 1)),
+    fmt(new Date(year, 11, 25)),
+    fmt(new Date(year, 11, 26)),
   ])
 }
 
 const NRW_HOLIDAYS = getNRWHolidays(new Date().getFullYear())
+
+function isNonWorkingDay(d: Date): boolean {
+  return isWeekend(d) || NRW_HOLIDAYS.has(d.toISOString().split('T')[0])
+}
 
 export default function TeamOverview() {
   const [requests, setRequests] = useState<VacationRequest[]>([])
@@ -76,9 +80,7 @@ export default function TeamOverview() {
   const month = MONTHS[selectedMonth]
   const monthStart = startOfMonth(month)
   const monthEnd = endOfMonth(month)
-  const calendarDays = eachDayOfInterval({ start: monthStart, end: monthEnd }).filter(
-    (d) => !isWeekend(d) && !NRW_HOLIDAYS.has(d.toISOString().split('T')[0]),
-  )
+  const allDays = eachDayOfInterval({ start: monthStart, end: monthEnd })
 
   const relevantInMonth = requests.filter(
     (r) =>
@@ -91,7 +93,8 @@ export default function TeamOverview() {
 
   const dayMap = useMemo(() => {
     const map = new Map<string, { approved: string[]; pending: string[] }>()
-    for (const day of calendarDays) {
+    for (const day of allDays) {
+      if (isNonWorkingDay(day)) continue
       const key = day.toISOString().split('T')[0]
       const approved: string[] = []
       const pending: string[] = []
@@ -106,7 +109,7 @@ export default function TeamOverview() {
       map.set(key, { approved, pending })
     }
     return map
-  }, [relevantInMonth, calendarDays])
+  }, [relevantInMonth, allDays])
 
   const handleExport = async () => {
     setExportLoading(true)
@@ -164,21 +167,26 @@ export default function TeamOverview() {
             {format(month, 'MMMM yyyy', { locale: de })}
           </h2>
         </div>
-        <table className="w-full text-xs min-w-[600px]">
+        <table className="w-full text-xs" style={{ minWidth: '700px' }}>
           <thead>
-            <tr className="bg-gray-50">
-              <th className="text-left px-4 py-2 text-brand-gray font-semibold w-32 sticky left-0 bg-gray-50">
+            <tr>
+              <th className="text-left px-4 py-2 text-brand-gray font-semibold w-28 sticky left-0 bg-gray-50">
                 Mitarbeiter
               </th>
-              {calendarDays.map((d) => {
+              {allDays.map((d) => {
                 const key = d.toISOString().split('T')[0]
+                const nonWorking = isNonWorkingDay(d)
                 const entry = dayMap.get(key)
-                const count = (entry?.approved.length ?? 0) + (entry?.pending.length ?? 0)
+                const count = nonWorking ? 0 : (entry?.approved.length ?? 0) + (entry?.pending.length ?? 0)
                 return (
                   <th
                     key={key}
-                    className={`px-1 py-2 text-center font-medium min-w-[28px] ${
-                      count > 1 ? 'text-red-500' : 'text-brand-gray'
+                    className={`px-0.5 py-2 text-center font-medium min-w-[22px] ${
+                      nonWorking
+                        ? 'bg-gray-100 text-gray-300'
+                        : count > 1
+                          ? 'text-red-500 bg-gray-50'
+                          : 'text-brand-gray bg-gray-50'
                     }`}
                   >
                     {format(d, 'd')}
@@ -193,8 +201,14 @@ export default function TeamOverview() {
                 <td className="px-4 py-2 font-medium text-brand-dark sticky left-0 bg-white whitespace-nowrap">
                   {emp.full_name.split(' ')[0]}
                 </td>
-                {calendarDays.map((d) => {
+                {allDays.map((d) => {
                   const key = d.toISOString().split('T')[0]
+                  const nonWorking = isNonWorkingDay(d)
+
+                  if (nonWorking) {
+                    return <td key={key} className="px-0.5 py-2 bg-gray-100" />
+                  }
+
                   const entry = dayMap.get(key)
                   const isApproved = entry?.approved.includes(emp.full_name) ?? false
                   const isPending = entry?.pending.includes(emp.full_name) ?? false
@@ -209,10 +223,10 @@ export default function TeamOverview() {
                   }
 
                   return (
-                    <td key={key} className="px-1 py-2 text-center">
+                    <td key={key} className="px-0.5 py-2 text-center">
                       {color && (
                         <span
-                          className="block w-5 h-5 rounded mx-auto"
+                          className="block w-4 h-4 rounded mx-auto"
                           style={{ backgroundColor: color }}
                           title={
                             overlap
@@ -233,12 +247,14 @@ export default function TeamOverview() {
               <td className="px-4 py-2 text-xs font-semibold text-brand-gray sticky left-0 bg-gray-50">
                 Überschneidung
               </td>
-              {calendarDays.map((d) => {
+              {allDays.map((d) => {
                 const key = d.toISOString().split('T')[0]
+                const nonWorking = isNonWorkingDay(d)
+                if (nonWorking) return <td key={key} className="bg-gray-100" />
                 const entry = dayMap.get(key)
                 const count = (entry?.approved.length ?? 0) + (entry?.pending.length ?? 0)
                 return (
-                  <td key={key} className="px-1 py-2 text-center">
+                  <td key={key} className="px-0.5 py-2 text-center">
                     {count > 1 && <span className="text-red-500 font-bold">{count}</span>}
                   </td>
                 )
@@ -256,6 +272,9 @@ export default function TeamOverview() {
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-red-500 inline-block" /> Überschneidung
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded bg-gray-200 inline-block" /> Wochenende / Feiertag
           </span>
         </div>
       </div>
