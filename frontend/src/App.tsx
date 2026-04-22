@@ -90,7 +90,7 @@ export default function App() {
       <Route
         path="/team"
         element={
-          <ProtectedRoute requiredRole={['manager', 'admin']}>
+          <ProtectedRoute>
             <Layout>
               <TeamOverview />
             </Layout>

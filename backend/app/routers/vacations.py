@@ -141,10 +141,18 @@ def cancel_request(
 @router.get("/team", response_model=list[VacationRequestOut])
 def team_requests(
     status: VacationStatus | None = None,
-    current_user: User = Depends(require_manager),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    employee_ids = [u.id for u in current_user.subordinates] + [current_user.id]
+    if current_user.role == UserRole.employee:
+        team_ids: set[int] = {current_user.id}
+        for manager in current_user.managers:
+            team_ids.add(manager.id)
+            for sub in manager.subordinates:
+                team_ids.add(sub.id)
+        employee_ids = list(team_ids)
+    else:
+        employee_ids = [u.id for u in current_user.subordinates] + [current_user.id]
     q = db.query(VacationRequest).filter(VacationRequest.employee_id.in_(employee_ids))
     if status:
         q = q.filter(VacationRequest.status == status)
@@ -154,11 +162,20 @@ def team_requests(
 @router.get("/team/remaining", response_model=list[dict])
 def team_remaining(
     year: int = Query(default=date.today().year),
-    current_user: User = Depends(require_manager),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    if current_user.role == UserRole.employee:
+        team_ids: set[int] = {current_user.id}
+        for manager in current_user.managers:
+            team_ids.add(manager.id)
+            for sub in manager.subordinates:
+                team_ids.add(sub.id)
+        members = db.query(User).filter(User.id.in_(team_ids)).all()
+    else:
+        members = list(current_user.subordinates) + [current_user]
     result = []
-    for emp in list(current_user.subordinates) + [current_user]:
+    for emp in members:
         rem = _calc_remaining(db, emp.id, year)
         result.append({
             "employee": {"id": emp.id, "full_name": emp.full_name, "email": emp.email},

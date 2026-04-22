@@ -45,15 +45,13 @@ export default function Layout({ children }: LayoutProps) {
             <NavLink to="/my-requests" className={navClass}>
               Meine Anträge
             </NavLink>
+            <NavLink to="/team" className={navClass}>
+              Team
+            </NavLink>
             {isManager && (
-              <>
-                <NavLink to="/team" className={navClass}>
-                  Team
-                </NavLink>
-                <NavLink to="/approvals" className={navClass}>
-                  Genehmigungen
-                </NavLink>
-              </>
+              <NavLink to="/approvals" className={navClass}>
+                Genehmigungen
+              </NavLink>
             )}
             {isAdmin && (
               <NavLink to="/admin" className={navClass}>
