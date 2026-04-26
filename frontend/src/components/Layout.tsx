@@ -223,7 +223,7 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.18 }}
       className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      onClick={(e: React.MouseEvent) => e.target === e.currentTarget && onClose()}
     >
       <motion.div
         initial={{ scale: 0.92, opacity: 0, y: 20 }}
