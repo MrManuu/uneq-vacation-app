@@ -129,7 +129,7 @@ export default function TeamOverview() {
       <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-3xl font-heading font-bold">Teamübersicht</h1>
+          <h1 className="text-3xl font-heading font-bold">Teamkalender-Test</h1>
           <p className="text-brand-gray mt-1">Urlaubskalender und Resttage des gesamten Teams</p>
         </div>
         <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
